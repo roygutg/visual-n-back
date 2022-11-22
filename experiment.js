@@ -1,4 +1,55 @@
 /* ************************************ */
+/* Define experimental variables */
+/* ************************************ */
+// generic task variables
+var run_attention_checks = true
+var attention_check_thresh = 0.65
+var sumInstructTime = 0 //ms
+var instructTimeThresh = 0 ///in seconds
+var credit_var = true //default to true
+
+// task specific variables
+var num_blocks = 2 // number of test blocks, was 7
+var num_trials = 5 // total num_trials, was 20
+var block_acc = 0 // record block accuracy to determine next blocks delay
+var delay = 1 // starting delay
+var trials_left = 0 // counter used by test_node
+var target_trials = [] // array defining whether each trial in a block is a target trial
+var current_trial = 0
+var within_block_trial = 1
+var current_block = 0
+var block_trial = 0
+var target = ""
+var curr_stim = ''
+var new_block = 0
+var deadline = 2000 // Start at 2000ms, and "adapt" to performance
+                    // 		since the N-Back is primarily about accuracy
+                    // 		and not speed, we don't want to put those with
+                    // 		slower response times at a disadvantage
+var timeouts_last_block = 0 // hold # of timeouts on last block
+var stims = [] //hold stims per block
+var correct_response = ""
+
+
+// stimuli
+var objects = [
+    "img0.svg",
+    "img1.svg",
+    "img2.svg",
+    "img3.svg",
+    "img4.svg",
+    "img5.svg",
+    "img6.svg",
+    "img7.svg",
+    "img8.svg",
+    "img9.svg"
+]
+
+match_key = 39;
+mismatch_key = 40;
+
+
+/* ************************************ */
 /* Define helper functions */
 
 /* ************************************ */
@@ -60,12 +111,12 @@ var record_acc = function (data, t) {
     var stim = data.stim
     var key = data.key_press
 
-    if (stim == target && key == 39) {
+    if (stim == target && key == match_key) {
         correct = true
         if (block_trial >= delay) {
             block_acc += 1
         }
-    } else if (stim != target && key == 40) {
+    } else if (stim != target && key == mismatch_key) {
         correct = true
         if (block_trial >= delay) {
             block_acc += 1
@@ -264,80 +315,6 @@ var slides = function () {
 
 };
 
-
-/* ************************************ */
-/* Define experimental variables */
-/* ************************************ */
-// generic task variables
-var run_attention_checks = true
-var attention_check_thresh = 0.65
-var sumInstructTime = 0 //ms
-var instructTimeThresh = 0 ///in seconds
-var credit_var = true //default to true
-
-// task specific variables
-var num_blocks = 7 // number of test blocks
-var num_trials = 20 // total num_trials
-var block_acc = 0 // record block accuracy to determine next blocks delay
-var delay = 1 // starting delay
-var trials_left = 0 // counter used by test_node
-var target_trials = [] // array defining whether each trial in a block is a target trial
-var current_trial = 0
-var within_block_trial = 1
-var current_block = 0
-var block_trial = 0
-var target = ""
-var curr_stim = ''
-var new_block = 0
-var deadline = 2000 // Start at 2000ms, and "adapt" to performance
-                    // 		since the N-Back is primarily about accuracy
-                    // 		and not speed, we don't want to put those with
-                    // 		slower response times at a disadvantage
-var timeouts_last_block = 0 // hold # of timeouts on last block
-var stims = [] //hold stims per block
-var correct_response = ""
-
-
-/*
-###############
-Credits
-	for images
-###############
-
-	fish.svg
-	lobster.svg
-	whale.svg
-	bee.svg
-	butterfly.svg
-	tortoise.svg
-	pig.svg
-	elephant.svg
-	parrot.svg
-
-	Author: Freepik
-	Sources: 
-	https://www.flaticon.com/packs/sea-life-collection
-	https://www.flaticon.com/packs/animals-19/2
-	https://www.flaticon.com/free-icon/tortoise_1045269
-	https://www.flaticon.com/free-icon/elephant_427560
-	https://www.flaticon.com/free-icon/pig_616547X
-	https://www.flaticon.com/free-icon/parrot_427487
-	
-###############
-*/
-
-var objects = [
-    "fish.svg",
-    "lobster.svg",
-    "whale.svg",
-    "bee.svg",
-    "butterfly.svg",
-    "tortoise.svg",
-    "pig.svg",
-    "elephant.svg",
-    "parrot.svg",
-    "lion.svg"
-]
 
 // Initial shuffle
 objects = jsPsych.randomization.shuffle(objects)
@@ -559,8 +536,8 @@ for (var i = 0; i < (num_trials + 1); i++) {
     stims.push(stim)
 
     if (i > 0) target = array[i - 1];
-    if (stim == target) correct_response = 39;
-    else correct_response = 40;
+    if (stim == target) correct_response = match_key;
+    else correct_response = mismatch_key;
 
     if (i == 0) {
         correct_text = "&nbsp;"
@@ -591,7 +568,7 @@ for (var i = 0; i < (num_trials + 1); i++) {
         timing_feedback_duration: 500,
         show_stim_with_feedback: false,
         response_ends_trial: false,
-        choices: [39, 40],
+        choices: [match_key, mismatch_key],
         timing_stim: 500,
         timing_response: deadline,
         timing_post_trial: 500
@@ -608,7 +585,7 @@ var test_block = {
     stimulus: getStim,
     data: getData,
     correct_response: correct_response,
-    choices: [39, 40],
+    choices: [match_key, mismatch_key],
     timing_stim: 500,
     timing_response: getDeadline,
     timing_post_trial: 0,
