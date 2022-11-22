@@ -1,12 +1,13 @@
-<!DOCTYPE html><html class=''>
+<!DOCTYPE html>
+<html class=''>
 <head>
     <meta charset='UTF-8'>
     <meta name="robots" content="noindex">
     <title>The Experiment Factory: Adaptive N-Back</title>
-    
-<link rel='stylesheet' type='text/css' href='jspsych.css'>
-<link rel='stylesheet' type='text/css' href='default_style.css'>
-<link rel='stylesheet' type='text/css' href='style.css'>
+
+    <link rel='stylesheet' type='text/css' href='jspsych.css'>
+    <link rel='stylesheet' type='text/css' href='default_style.css'>
+    <link rel='stylesheet' type='text/css' href='style.css'>
 </head>
 
 <body>
@@ -25,50 +26,52 @@
 <script src='experiment.js'></script>
 
 <script>
-$( document ).ready(function() {
+    $(document).ready(function () {
 
-    jsPsych.init({
-             timeline: adaptive_n_back_experiment,
-             display_element: "getDisplayElement",
-             fullscreen: true,
-             on_trial_finish: function(data){
-               addID('adaptive-n-back')
-             },
-             on_finish: function(data){
+        jsPsych.init({
+            timeline: adaptive_n_back_experiment,
+            display_element: "getDisplayElement",
+            fullscreen: true,
+            on_trial_finish: function (data) {
+                addID('adaptive-n-back')
+            },
+            on_finish: function (data) {
 
-                 // Serialize the data
-                 var promise = new Promise(function(resolve, reject) {
-                     var data = jsPsych.data.dataAsJSON();
-                     resolve(data);
-                 })
+                // Serialize the data
+                var promise = new Promise(function (resolve, reject) {
+                    var data = jsPsych.data.dataAsJSON();
+                    resolve(data);
+                })
 
-                 promise.then(function(data) {
+                promise.then(function (data) {
 
 
-                     $.ajax({
-                         type: "POST",
-                         url: '/save',
-                         data: { "data": data },
-                         success: function(){ document.location = "/next" },
-                         dataType: "application/json",
+                    $.ajax({
+                        type: "POST",
+                        url: '/save',
+                        data: {"data": data},
+                        success: function () {
+                            document.location = "/next"
+                        },
+                        dataType: "application/json",
 
-                         // Endpoint not running, local save
-                         error: function(err) {
+                        // Endpoint not running, local save
+                        error: function (err) {
 
-                             if (err.status == 200){
-                                 document.location = "/next";
-                             } else {
+                            if (err.status == 200) {
+                                document.location = "/next";
+                            } else {
 
-                                 // If error, assue local save
-                                 jsPsych.data.localSave('adaptive-n-back_results.csv', 'csv');
-                             }
-                         }
-                     });
-                 })
-             }
+                                // If error, assue local save
+                                jsPsych.data.localSave('adaptive-n-back_results.csv', 'csv');
+                            }
+                        }
+                    });
+                })
+            }
 
-            });
-});
+        });
+    });
 </script>
 </body>
 </html>
