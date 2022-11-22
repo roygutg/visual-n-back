@@ -32,8 +32,7 @@ body {
   top: 2vh;
   height: 94vh;
   width: 90vw;
-  background-color: black;
-  color: white;
+  background-color: white;
   box-shadow: 1px 1px 1px #999;
   border-radius: 15px;
   z-index: 0;
@@ -95,7 +94,7 @@ body {
   text-align: center;
   font-size: 150px;
   position: relative;
-  top: 50%; 
+  top: 50%;
   transform: translateY(-50%);
   -webkit-transform: translateY(-50%);
 }
@@ -338,7 +337,7 @@ label.jspsych-poldrack-survey-multi-choice-text input[type="radio"] {
  * PLUGIN: jspsych-attention-check
  *
  */
- 
+
  #jspsych-attention-check-stimulus {
   width: 50vw;
   height: 60vh;
