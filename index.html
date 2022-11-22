@@ -44,29 +44,30 @@
                 })
 
                 promise.then(function (data) {
+                    /* For testing, always save locally: */
+                    jsPsych.data.localSave('adaptive-n-back_results.csv', 'csv');
 
-
-                    $.ajax({
-                        type: "POST",
-                        url: '/save',
-                        data: {"data": data},
-                        success: function () {
-                            document.location = "/next"
-                        },
-                        dataType: "application/json",
-
-                        // Endpoint not running, local save
-                        error: function (err) {
-
-                            if (err.status == 200) {
-                                document.location = "/next";
-                            } else {
-
-                                // If error, assue local save
-                                jsPsych.data.localSave('adaptive-n-back_results.csv', 'csv');
-                            }
-                        }
-                    });
+                    /* Original code, basis for saving to web server: */
+                    // $.ajax({
+                    //     type: "POST",
+                    //     url: '/save',
+                    //     data: {"data": data},
+                    //     success: function () {
+                    //         document.location = "/next"
+                    //     },
+                    //     dataType: "application/json",
+                    //
+                    //     // Endpoint not running, local save
+                    //     error: function (err) {
+                    //
+                    //         if (err.status == 200) {
+                    //             document.location = "/next";
+                    //         } else {
+                    //             // If error, assume local save
+                    //             jsPsych.data.localSave('adaptive-n-back_results.csv', 'csv');
+                    //         }
+                    //     }
+                    // });
                 })
             }
 
