@@ -73,8 +73,8 @@ var jsPsych = (function() {
       DOM_target = window[opts.display_element]()
     } else {
       DOM_target = opts.display_element;
-    }    
-    
+    }
+
     // add CSS class to DOM_target
     DOM_target.addClass('jspsych-display-element');
 
@@ -510,7 +510,7 @@ var jsPsych = (function() {
       if (keyboardNotAllowed) {
         go();
       } else {
-        DOM_target.append('<div class = centerbox style="height:80vh"><p class = block-text>Let\'s play a memory game! Focus will be important here, so before we begin please make sure you\'re ready for <u><strong>ten minutes</strong></u> of uninterrupted game time! You will have opportunity to take short breaks throughout.</p><button id="jspsych-fullscreen-btn" class="jspsych-btn">Continue</button></div>');
+        DOM_target.append(`<div class = centerbox style="height:80vh"><p class = block-text>${feedback_instruct_text}</p><button id="jspsych-fullscreen-btn" class="jspsych-btn">Continue</button></div>`);
         $('#jspsych-fullscreen-btn').on('click', function() {
           var element = document.documentElement;
           if (element.requestFullscreen) {
