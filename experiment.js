@@ -1,35 +1,18 @@
 /* ************************************ */
 /* Define experimental variables */
 /* ************************************ */
-// generic task variables
-var run_attention_checks = true
-var attention_check_thresh = 0.65
-var sumInstructTime = 0 //ms
-var instructTimeThresh = 0 ///in seconds
-var credit_var = true //default to true
+// texts
+CORRECT_FEEDBACK = `<div class = centerbox><div style="color:green" class = center-text>Correct!</div></div>`
+INCORRECT_FEEDBACK = `<div class = centerbox><div style="color:red" class = center-text>Incorrect</div></div>`
+TIMEOUT_MSG = `<div class = centerbox><div class = center-text>Respond faster</div></div>`
+TOO_SLOW_ALERT = `Whoa! Don't take this the wrong way, but you were going too slow on that last round. Please respond to each shape *before* the next shape appears on the screen.`
 
 // task specific variables
-var num_blocks = 2 // number of test blocks, was 7
-var num_trials = 5 // total num_trials, was 20
-var block_acc = 0 // record block accuracy to determine next blocks delay
-var delay = 1 // starting delay
-var trials_left = 0 // counter used by test_node
-var target_trials = [] // array defining whether each trial in a block is a target trial
-var current_trial = 0
-var within_block_trial = 1
-var current_block = 0
-var block_trial = 0
-var target = ""
-var curr_stim = ''
-var new_block = 0
-var deadline = 2000 // Start at 2000ms, and "adapt" to performance
-                    // 		since the N-Back is primarily about accuracy
-                    // 		and not speed, we don't want to put those with
-                    // 		slower response times at a disadvantage
-var timeouts_last_block = 0 // hold # of timeouts on last block
-var stims = [] //hold stims per block
-var correct_response = ""
-
+var n_0back_test_blocks = 1 // did not exist originally
+var n_nback_test_blocks = 2 * n_0back_test_blocks // was 7
+var block_len = 5 // number of trials in ech block, was 20
+var match_key = 39 // right arrow
+var mismatch_key = 40 // down arrow
 
 // stimuli
 var objects = [
@@ -45,8 +28,13 @@ var objects = [
     "img9.svg"
 ]
 
-match_key = 39;
-mismatch_key = 40;
+// globals
+var delay = 0 // the "n" in n-back
+var trial_i = 0
+var block_i = 0
+var target = ""
+var curr_stim = ""
+var deadline = 2000 // starts at 2000ms and adapts to performance
 
 
 /* ************************************ */
@@ -61,6 +49,7 @@ function assessPerformance() {
     var trial_count = 0
     var rt_array = []
     var rt = 0
+
     //record choices participants made
     var choice_counts = {}
     choice_counts[-1] = 0
@@ -78,12 +67,11 @@ function assessPerformance() {
             }
         }
     }
-    //calculate average rt
-    var avg_rt = -1
-    if (rt_array.length !== 0) {
-        avg_rt = math.median(rt_array)
-    }
     var missed_percent = missed_count / experiment_data.length
+
+    //calculate average rt
+    var avg_rt = rt_array.length > 0 ? math.median(rt_array) : -1
+
     //calculate whether response distribution is okay
     var responses_ok = true
     Object.keys(choice_counts).forEach(function (key, index) {
@@ -91,13 +79,11 @@ function assessPerformance() {
             responses_ok = false
         }
     })
+
     credit_var = (missed_percent < 0.4 && (avg_rt > 200) && responses_ok)
     jsPsych.data.addDataToLastTrial({"credit_var": credit_var})
 }
 
-var getInstructFeedback = function () {
-    return '<div class = centerbox><p class = center-block-text>' + feedback_instruct_text + '</p></div>'
-}
 
 var randomDraw = function (lst) {
     var index = Math.floor(Math.random() * (lst.length))
@@ -105,51 +91,29 @@ var randomDraw = function (lst) {
 };
 
 
-// Runs on last trial
-var record_acc = function (data, t) {
-    var target = t || data.target
-    var stim = data.stim
+// Runs after each test trial: tracks accuracy, updates data, increments trial counter.
+var post_test_trial = function (data) {
     var key = data.key_press
 
-    if (stim == target && key == match_key) {
-        correct = true
-        if (block_trial >= delay) {
-            block_acc += 1
-        }
-    } else if (stim != target && key == mismatch_key) {
-        correct = true
-        if (block_trial >= delay) {
-            block_acc += 1
-        }
-    } else {
-        correct = false
-    }
+    correct = (trial_i < delay) ||  // before n stimuli were shown, correct regardless of key pressed
+        (curr_stim === target && key === match_key) || (curr_stim !== target && key === mismatch_key);
 
     jsPsych.data.addDataToLastTrial({
         correct: correct,
         stim: curr_stim,
-        trial_num: current_trial
+        trial_num: trial_i
     })
 
-    current_trial = current_trial + 1
-    within_block_trial = within_block_trial + 1
-    block_trial = block_trial + 1
     return correct;
 };
 
-// Update variables
-// 	** within_block_trial 	tracks trial within a block
-//	** current_block		tracks the block we're on
-//	** delay				tracks the "N-back load"
-//	** new_block			tracks if the block is of a new type
-//								if it is, we show a different set of instructions
-var update_params = function () {
-
+// Sets all block parameter to defaults, increments block counter, updates response deadline if needed
+var set_new_block = function () {
     // Check if we need to increase or decrease the response deadline
     var count_timeouts = 0
     var experiment_data = jsPsych.data.getTrialsOfType('poldrack-single-stim')
     for (var i = 0; i < experiment_data.length; ++i) {
-        if (experiment_data[i].rt == -1 & experiment_data[i].block_num == current_block)
+        if (experiment_data[i].rt == -1 && experiment_data[i].block_num == block_i)
             count_timeouts++;
     }
 
@@ -157,58 +121,47 @@ var update_params = function () {
     // If we have more than 7 timeouts (40%)
     //	and deadline is not already 3500ms (max)
     //	then slow it down by 500ms
-    if (count_timeouts > 7 & deadline < 3500) deadline += 500
+    if (count_timeouts > 7 && deadline < 3500) deadline += 500
 
         // SPEED UP
         // If we have fewer than 3 timeouts (10%)
         //	and deadline is not already 2000ms
     //	then speed it up by 500ms
-    else if (count_timeouts < 3 & deadline > 2000) deadline -= 500
+    else if (count_timeouts < 3 && deadline > 2000) deadline -= 500
 
 
     // ALERT
     // If we have more than 12 timeouts (60%)
     //	then show an alert
-    if (count_timeouts >= 12) $.alertable.alert("Whoa! Don't take this the wrong way, but you were going too slow on that last round. Please respond to each animal *before* the next animal appears on the screen.");
+    if (count_timeouts >= 12) $.alertable.alert(TOO_SLOW_ALERT);
 
 
-    // Trial within block
-    within_block_trial = 0;
-
-    // Current block
-    current_block += 1
-
-    // Update delay
-    if (current_block == 1) delay = 1
-    else if (current_block == 2 | current_block == 3 | current_block == 4) delay = 2
-    else if (current_block == 5 | current_block == 6 | current_block == 7) delay = 3
-
-    // Determine if this is a new delay/load
-    //	if so, show "first time" instructions (more verbose)
-    if (current_block == 1 | current_block == 2 | current_block == 5) new_block = 1
-    else new_block = 0
-
+    // init new block
+    trial_i = 0;
+    delay = block_i <= n_0back_test_blocks ? 0 : 2 // during 0-back, block_i is exactly the number of 0-back
+    // blocks completed, including practice at block_i==0
+    array = genSet(objects, delay)
+    block_i++;
 }
 
-var update_target = function () {
-    if (stims.length >= delay) {
-        target = stims.slice(-delay)[0]
+var update_0back_target = function () {
+    target = randomDraw(objects);
+};
+
+var update_nback_target = function () {
+    if (trial_i >= delay) {
+        target = array[trial_i - delay]
     } else {
         target = ""
     }
 };
 
 var getStim = function () {
-    var trial_type = 'target'
-    curr_stim = array[delay][within_block_trial]
-    stims.push(curr_stim)
+    curr_stim = array[trial_i++]
 
-    // Refresh if we got to the end
-    if (within_block_trial == num_trials + delay) {
-        array[delay] = genSet(objects, delay)
-    }
-
-    return '<div class = centerbox><div class = center-text><div class = svg><img class="img" src="stims/' + curr_stim + '" style="max-width:150px"></div></div></div>'
+    return `<div class = centerbox><div class = center-text><div class = svg>
+            <img class="img" src="stims/${curr_stim}" style="max-width:150px">
+            </div></div></div>`
 }
 
 var getDeadline = function () {
@@ -216,9 +169,7 @@ var getDeadline = function () {
 }
 
 var getTarget = function () {
-    if (within_block_trial >= delay)
-        return array[delay][within_block_trial - delay];
-    else return "";
+    return target;
 }
 
 var getData = function () {
@@ -227,28 +178,66 @@ var getData = function () {
         exp_stage: "test",
         load: delay,
         target: target,
-        block_num: current_block,
-        stim: array[delay][within_block_trial]
+        block_num: block_i,
+        stim: curr_stim
     }
 }
 
-// Instructions for the different N-Backs
-//	different instructions are shown for first time and repetitions
-var getText = function () {
+var getCorrectResponse = function () {
+    return curr_stim === target ? match_key : mismatch_key;
+}
 
-    // First time this type of delay is shown
-    if (new_block == 1) {
-        if (delay == 1)
-            return '<div class = centerbox style="height:80vh;text-align:center;"><p class = block-text><font size=24>1 Back (round ' + current_block + ' of ' + num_blocks + ')</font><br /><br />Now we\'re going to play the 1-back for real.<br \><br \>Remember: The object of the 1-back is to identify when the animal you see is the same or different from the animal you saw <strong><u>1 item back</u></strong>.<br \><br \>In the example below, the current animal is a <strong><u>bee</u></strong>, and 1-back animal was also a <strong><u>bee</u></strong>, so we have a 1-back match.</p><img src="imgs/1back_diagram.svg" style="max-width:500px"><br /><p class = block-text>This is a test round, so there won\'t be any feedback. Although you won\'t know if you are responding correctly, it is important that you <strong><u>be as accurate as you can</u></strong>. It is also important that you <strong><u>respond</u></strong> to each animal <strong><u>before the next animal appears</u></strong> on the screen.  <br /><br />Get ready, it will move quickly!<br /><br />Press <strong>enter</strong> to begin.</p><br /><br /></div>';
-        else if (delay == 2)
-            return '<div class = centerbox style="height:80vh;text-align:center;"><p class = block-text><font size=24>2 Back (round ' + current_block + ' of ' + num_blocks + ')</font><br /><br />Now we\'re going to play the 2-back.<br \><br \>The object of the 2-back is to identify when the animal you see is the same or different from the animal you saw <strong><u>2 items back</u></strong>.<br \><br \>In the example below, the current animal is a <strong><u>bee</u></strong>, and 2-back animal was also a <strong><u>bee</u></strong>, so we have a 2-back match.</p><img src="imgs/2back_diagram.svg" style="max-width:500px"><br /><br /><p class = block-text>This is a test round, so there won\'t be any feedback. Although you won\'t know if you are responding correctly, it is important that you <strong><u>be as accurate as you can</u></strong>. It is also important that you <strong><u>respond</u></strong> to each animal <strong><u>before the next animal appears</u></strong> on the screen. <br /><br />Get ready, it will move quickly!<br /><br />Press <strong>enter</strong> to begin.</p><br /><br /></div>';
-        else
-            return '<div class = centerbox style="height:80vh;text-align:center;"><p class = block-text><font size=24>3 Back (round ' + current_block + ' of ' + num_blocks + ')</font><br /><br />Now we\'re going to play the 3-back.<br \><br \>The object of the 3-back is to identify when the animal you see is the same or different from the animal you saw <strong><u>3 items back</u></strong>.<br \><br \>In the example below, the current animal is a <strong><u>bee</u></strong>, and 3-back animal was also a <strong><u>bee</u></strong>, so we have a 3-back match.</p><img src="imgs/3back_diagram.svg" style="max-width:500px"><br /><br /><p class = block-text>This is a test round, so there won\'t be any feedback. Although you won\'t know if you are responding correctly, it is important that you <strong><u>be as accurate as you can</u></strong>. It is also important that you <strong><u>respond</u></strong> to each animal <strong><u>before the next animal appears</u></strong> on the screen.  <br /><br />Prepare yourself, this one is a real challenge!<br /><br />Press <strong>enter</strong> to begin.</p><br /><br /></div>';
-    }
+var get_0back_practice_instructions = function () {
+    return `<div class = centerbox>
+        <p class = block-title>Stage 1 – Practice</p>
+        <p class = block-text>Let's practice. In this round your target shape is this:</p>
+        <p class = center-block-text><img src="stims/${target}" style="max-width:500px"></p>
+        <p class = block-text>During practice you'll see if you are correct or incorrect after responding.</p>
+        <p class = block-text>Press <strong>enter</strong> to continue.</p>
+        </div>`
+}
 
-    // Not the first time this type of delay is shown
-    else if (new_block == 0)
-        return '<div  class = centerbox style="height:80vh;text-align:center;"><p class = block-text><font size=24>' + delay + ' Back (round ' + current_block + ' of ' + num_blocks + ')</font><br /><br />Great! If you need to, you can take a short break before continuing (please no more than a few minutes).<br /><br />This will be another round of <strong><u>' + delay + ' Back</u></strong>.<br /><br />In case you need a refresher, here is the task diagram once more.</p><img src="imgs/' + delay + 'back_diagram.svg" style="max-width:500px"><br /><br /><p class = block-text><br />This is a test round so there won\'t be any feedback. As you play, be as accurate as you can and respond to each animal before the next one appears. <br /><br />Whenever you\'re ready, press <strong>enter</strong> to begin.</p><br /><br /></div>';
+var practice_instructions_2back = `<div class = centerbox>
+        <p class = block-title>Stage 2 – Practice</p>
+        <p class = block-text>Let's practice. During practice you'll see if you are correct or incorrect after responding.</p>
+        <p class = block-text>Press <strong>enter</strong> to begin.</p>
+        </div>`
+
+var get_start_test_instructions = function () {
+    stage = delay === 0 ? "1" : "2";
+
+    return `<div class = centerbox>
+        <p class = block-title>Stage ${stage} – Instructions</p>
+        <p class = block-text>Practice complete, good job!</p>
+        <p class = block-text>The following are test rounds, so correct/incorrect feedback <b>will not be shown</b>.</p>
+        <p class = block-text>Although you won't know if you are responding correctly, it is important that you be <strong>as accurate as you can</strong>, and respond to each shape <strong>before the next shape appears</strong> on the screen.</p>
+        <p class = block-text>Press <strong>enter</strong> to begin.</p>
+        </div>`
+}
+
+
+var get_0back_new_block_instructions = function () {
+    var curr_0back_test_block = block_i;
+
+    return `<div class = centerbox>
+        <p class = block-title>Stage 1 – Round ${curr_0back_test_block} (of ${n_0back_test_blocks})</p>
+        <p class = block-text>This is your target shape in this round:</p>
+        <p class = center-block-text><img src="stims/${target}" style="max-width:500px"></p>
+        <p class = block-text>Give your eyes and neck muscles a short rest, and begin when you feel ready.</p>
+        <p class = block-text>Press <strong>enter</strong> to begin.</p>
+        </div>`
+}
+
+var get_nback_new_block_instructions = function () {
+    // subtract 0-back test blocks and 2-back practice block
+    var curr_nback_test_block = block_i - n_0back_test_blocks - 1;
+
+    return `<div class = centerbox>
+        <p class = block-title>Stage 2 – Round ${curr_nback_test_block} (of ${n_nback_test_blocks})</p>
+        <p class = block-text>Ready for the next round?</p>
+        <p class = block-text>Give your eyes and neck muscles a short rest, and begin when you feel ready.</p>
+        <p class = block-text>Press <strong>enter</strong> to begin.</p>
+        </div>`
 }
 
 // Get a random number between min and max
@@ -269,30 +258,24 @@ var cnbm = function (stim_arr, n) {
 }
 
 // Generate a block
-//	this is set to generate a block of length 20 with 7 targets
-function genSet(array, n) {
+function genSet(stimuli, n) {
+    n_wanted_targets = 7
+    array = [...stimuli]; // (shallow) copy the stimuli array do it's not changed by this function
 
-    // Loop until we have exactly 7 targets
-    while (cnbm(array, n) != 7) {
+    // Fill initial array using stimuli one by one. Array length is block_len+n since first n trials cannot be targets
+    while (array.length < block_len + n) {
+        next_stimulus_idx = array.length % stimuli.length;
+        array.push(stimuli[next_stimulus_idx])
+    }
+    array = jsPsych.randomization.shuffle(array)
 
-        len = 20
-        array = objects;
-
-        // Generate intial array by concatenation up to length, then shuffle
-        for (var i = 1; i < len / objects.length; i++) {
-            array = jsPsych.randomization.shuffle(array.concat(objects))
-        }
-
-        // Append n objects to end of array
-        //	because first n objects don't have any targets
-        for (var i = 1; i <= n; i++) {
-            array = array.concat(objects[getRand(0, objects.length - 1)])
-        }
-
-        // Add targets to array at random
-        for (var i = n; i < 7; i++) {
-            x = getRand(n + n, array.length - 1)
-            array[x] = array[x - n]
+    if (n > 0) {
+        // add targets if there aren't enough. Note: each iteration adds a target buy may also ruin an existing one, so
+        // there is no guarantee this loop ends with exactly n_wanted_targets targets!
+        n_targets = cnbm(array, n)
+        for (var n_missing_targets = n_wanted_targets - n_targets; n_missing_targets > 0; n_missing_targets--) {
+            new_target_idx = getRand(n, array.length - 1)
+            array[new_target_idx] = array[new_target_idx - n]
         }
     }
 
@@ -302,6 +285,8 @@ function genSet(array, n) {
 
 // Used to present a demo of the stimulus presentation in instructions
 var slides = function () {
+    var slides = document.querySelectorAll('#slides .slide');
+    var currentSlide = 0;
 
     function nextSlide() {
         slides[currentSlide].className = 'slide';
@@ -309,10 +294,7 @@ var slides = function () {
         slides[currentSlide].className = 'slide showing';
     }
 
-    var slides = document.querySelectorAll('#slides .slide');
-    var currentSlide = 0;
-    var slideInterval = setInterval(nextSlide, 1000);
-
+    setInterval(nextSlide, 1000);
 };
 
 
@@ -344,60 +326,79 @@ if (document.images) {
 /* ************************************ */
 /* Set up jsPsych blocks */
 /* ************************************ */
-// Set up attention check node
-//	 give 7.5 seconds to respond to each
-
-var my_attn_qs = [{'Q': '<p>ATTENTION CHECK</p> <p>Press the Spacebar</p>', 'A': 32},
-    {'Q': '<p>ATTENTION CHECK</p> <p>Press the "8" key</p>', 'A': 56}]
-
-var attention_index = 0
-var attention_check_block = {
-    type: 'attention-check',
-    data: {
-        trial_id: "attention"
-    },
-    timing_response: 7500,
-    response_ends_trial: true,
-    timing_post_trial: 200
-}
-
-var getAttentionQ = function () {
-    if (attention_index == 1) attention_index += 1
-    return my_attn_qs[attention_index]['Q']
-}
-var getAttentionA = function () {
-    if (attention_index == 1) attention_index += 1
-    return my_attn_qs[attention_index]['A']
-}
-
-var attention_node = {
-    timeline: [attention_check_block],
-    question: getAttentionQ,
-    key_answer: getAttentionA,
-    conditional_function: function () {
-        return run_attention_checks
-    }
-}
-
 
 /* define static blocks */
-var feedback_instruct_text =
-    '<div class = centerbox style="height:80vh"><p class = block-text>Let\'s play a memory game! Focus will be important here, so before we begin please make sure you\'re ready for about <u><strong>ten minutes</strong></u> of uninterrupted game time! You will have opportunity to take short breaks throughout.</p> <p class = block-text>Press <strong>enter</strong> to continue.</p></div>'
-var feedback_instruct_block = {
-    type: 'poldrack-text',
-    cont_key: [13],
-    data: {
-        trial_id: 'instruction'
-    },
-    text: getInstructFeedback,
-    timing_post_trial: 0,
-    timing_response: 180000
-};
-var instructions_block = {
+var welcome_text = `Let's play a memory game! Focus will be important here, so before we begin please make sure you're ready for about <strong>ten minutes</strong> of uninterrupted game time. You will have opportunities to take short breaks throughout.`
+
+general_instructions = `<div class = centerbox>
+         <p class = block-title>Instructions</p>
+         <p class = block-text>In this game you will see sequences of shapes. These are all the possible shapes you may see:</p>
+         <table style="width:100%">
+               <tr> <td style="text-align:center;"><img src="stims/${objects[0]}" style="max-width:150px"></td>
+                    <td style="text-align:center;"><img src="stims/${objects[1]}" style="max-width:150px"></td>
+                    <td style="text-align:center;"><img src="stims/${objects[2]}" style="max-width:150px"></td>
+                    <td style="text-align:center;"><img src="stims/${objects[3]}" style="max-width:150px"></td>
+                    <td style="text-align:center;"><img src="stims/${objects[4]}" style="max-width:150px"></td> </tr>
+               <tr> <td style="text-align:center;"><img src="stims/${objects[5]}" style="max-width:150px"></td>
+                    <td style="text-align:center;"><img src="stims/${objects[6]}" style="max-width:150px"></td>
+                    <td style="text-align:center;"><img src="stims/${objects[7]}" style="max-width:150px"></td>
+                    <td style="text-align:center;"><img src="stims/${objects[8]}" style="max-width:150px"></td>
+                    <td style="text-align:center;"><img src="stims/${objects[9]}" style="max-width:150px"></td> </tr>
+               </table>
+         </div>`
+
+instructions_0back = `<div class = centerbox>
+        <p class = block-title>Stage 1 – Instructions</p>
+        <p class = block-text>In the first stage of this game, your goal is to identify when a specific "target" shape appears. A new target shape will be presented at the beginning of each round.</p>
+        <p class = block-text>Each time a shape appears on the screen, your goal is to determine if it's the target shape. If it is, we'll call that a match. If it's a different shape, that's a mismatch.</p>
+        <p class = block-text>Your job is to respond by pressing the arrow keys:</p>
+        <p class = center-block-text>press the <span style="color:green"><b>right arrow</b></span> key if it's a <span style="color:green"><b>match</b></span> <br>
+         press the <span style="color:red"><b>down arrow</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
+        <p class = center-block-text><img src="imgs/arrow_keys.svg" style="max-width:300px"></p>
+        </div>`;
+
+instructions_2back_page1 = `<div class = centerbox>
+        <p class = block-title>Stage 2 – Instructions</p>
+        <p class = block-text>Stage 1 complete! Moving on to stage 2.</p>
+        <p class = block-text>In this stage, each time a shape appears on the screen, your goal is to determine whether it's the same shape that appeared <b>2 shapes back</b>. If it is, we'll call that a match. If it's a different shape, that's a mismatch.</p>
+        </div>`;
+
+instructions_2back_page2 = `<script>slides();</script><div class = centerbox>
+        <p class = block-title>Stage 2 – Instructions</p>
+        <p class = block-text>The shapes will be presented one after another in a sequence like the animation below. Can you spot the 2-back matches and mismatches?</p>
+        <ul id="slides"><li class="slide showing"><img src="stims/${objects[1]}" style="max-width:250px"></li>
+        <li class="slide"></li> <li class="slide"><img src="stims/${objects[3]}" style="max-width:250px"></li>
+        <li class="slide"></li> <li class="slide"><img src="stims/${objects[1]}" style="max-width:250px"></li>
+        <li class="slide"></li> <li class="slide"><img src="stims/${objects[2]}" style="max-width:250px"></li>
+        <li class="slide"> </ul> <br><br><br><br><br><br>
+        </div>`;
+// TODO: is there a way to get the "next" button lower without all those manual line breaks?
+
+instructions_2back_page3 = `<div class = centerbox>
+        <p class = block-title>Stage 2 – Instructions</p>
+        <p class = block-text>Your job is to respond by pressing the arrow keys:</p>
+        <p class = center-block-text>press the <span style="color:green"><b>right arrow</b></span> key if it's a <span style="color:green"><b>match</b></span> <br>
+        press the <span style="color:red"><b>down arrow</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
+        <p class = center-block-text><img src="imgs/arrow_keys.svg" style="max-width:300px"></p>
+        </div>`
+
+// TODO: 1-back instructions had this visual examples, should we add something similar?
+
+//         `<div class = centerbox style="height:80vh;text-align:center;"><p class = block-text><span style="font-size:24pt">1 Back</span><br /><br />
+//          Let's start with the 1-back.<br /><br />
+//          The objective of the 1-back is to identify when the shape you see is the same or different from the shape you saw <strong><u>1 item back</u></strong>.<br \><br \>
+//          In the example below, the current animal is a <strong><u>bee</u></strong>, and 1-back animal was also a <strong><u>bee</u></strong>, so we have a 1-back match!</p>
+//          <img src="imgs/1back_diagram.svg" style="max-width:500px"></div>`
+
+//         `<div class = centerbox style="height:80vh;text-align:center;"><p class = block-text><span style="font-size:24pt">1 Back</span><br /><br />
+//         You will also identify mis-matches. <br \><br \>
+//         In the example below, the current object is a <strong><u>bee</u></strong> but the 1-back animal was a <strong><u>whale</u></strong>, so we have a 1-back mis-match. </p>
+//         <img src="imgs/1back_diagram_nonmatch.svg" style="max-width:500px"></div>`
+
+
+var general_instructions_block = {
     type: 'poldrack-instructions',
-    pages: [
-        '<div class = centerbox style="height:80vh"><p class = block-text>In this game you will see a series of animals.<br/></p><table style="width:100%"> <tr> <td style="text-align:center;width:50%"><img src="stims/' + objects[1] + '" style="max-width:150px"></td> <td style="text-align:center;width:50%"><img src="stims/' + objects[2] + '" style="max-width:150px"></td> </tr> </table><br/><p class = block-text>Your goal is to identify when an animal is the same or different from the one you saw <strong><u>N-items back</u></strong> in the sequence.<br \><br \>"N" is the number of items that you need to keep in memory.</p></div>'
-    ],
+    pages: [general_instructions],
     data: {
         trial_id: 'instruction'
     },
@@ -405,11 +406,10 @@ var instructions_block = {
     show_clickable_nav: true,
     timing_post_trial: 1000
 };
-var instructions_block2 = {
+
+var practice_instructions_block_0back = {
     type: 'poldrack-instructions',
-    pages: [
-        '<div class = centerbox style="height:80vh;text-align:center;"><p class = block-text><font size=24>1 Back</font><br /><br />Let\'s start with the 1-back.<br /><br />The object of the 1-back is to identify when the animal you see is the same or different from the animal you saw <strong><u>1 item back</u></strong>.<br \><br \>In the example below, the current animal is a <strong><u>bee</u></strong>, and 1-back animal was also a <strong><u>bee</u></strong>, so we have a 1-back match!</p><img src="imgs/1back_diagram.svg" style="max-width:500px"></div>'
-    ],
+    pages: [instructions_0back],
     data: {
         trial_id: 'instruction'
     },
@@ -417,35 +417,10 @@ var instructions_block2 = {
     show_clickable_nav: true,
     timing_post_trial: 1000
 };
-var instructions_block3 = {
+
+var practice_instructions_block_2back = {
     type: 'poldrack-instructions',
-    pages: [
-        '<div class = centerbox style="height:80vh;text-align:center;"><p class = block-text><font size=24>1 Back</font><br /><br />You will also identify mis-matches. <br \><br \>In the example below, the current object is a <strong><u>bee</u></strong> but the 1-back animal was a <strong><u>whale</u></strong>, so we have a 1-back mis-match. </p><img src="imgs/1back_diagram_nonmatch.svg" style="max-width:500px"></div>'
-    ],
-    data: {
-        trial_id: 'instruction'
-    },
-    allow_keys: false,
-    show_clickable_nav: true,
-    timing_post_trial: 1000
-};
-var instructions_block4 = {
-    type: 'poldrack-instructions',
-    pages: [
-        '<script>slides();</script><div class = centerbox style="height:80vh"><p class = block-text><font size=24>1 Back</font><br /><br />The animals will be presented one after another in a sequence like the animation below. Can you spot the 1-back matches and mis-matches? <br \><br \><ul id="slides"><li class="slide showing"><img src="stims/' + objects[1] + '" style="max-width:150px"></li> <li class="slide "></li> <li class="slide"><img src="stims/' + objects[1] + '" style="max-width:150px"></li><li class="slide "></li> <li class="slide "><img src="stims/' + objects[3] + '" style="max-width:150px"></li> <li class="slide "></li> <li class="slide"><img src="stims/' + objects[2] + '" style="max-width:150px"></li><li class="slide "> </ul><br /></div>'
-    ],
-    data: {
-        trial_id: 'instruction'
-    },
-    allow_keys: false,
-    show_clickable_nav: true,
-    timing_post_trial: 1000
-};
-var instructions_block5 = {
-    type: 'poldrack-instructions',
-    pages: [
-        '<div class = centerbox style="height:80vh;text-align:center;"><p class = block-text><font size=24>1 Back</font><br /><br />Place your fingers on the <strong><u>right arrow</u></strong> and <strong><u>down arrow</u></strong> keys.<br \><br \><strong><u>MATCH:</u></strong> If you see an object that\'s a 1-back match press the <strong><u>right arrow</u></strong> key.<br /><br /><strong><u>MIS-MATCH:</u></strong> If you see an object that\'s 1-back mis-match press the <strong><u>down arrow</u></strong> key.</p><img src="imgs/arrow_keys.svg" style="max-width:500px"><br /></div>'
-    ],
+    pages: [instructions_2back_page1, instructions_2back_page2, instructions_2back_page3],
     data: {
         trial_id: 'instruction'
     },
@@ -458,14 +433,9 @@ var instructions_block5 = {
 // Author: Kevin Burke
 // https://www.vectorportal.com/StockVectors/Icons/ARROW-KEYS-FREE-VECTOR/9459.aspx
 
-
-var instruction_node = {
-    timeline: [instructions_block, instructions_block2, instructions_block3, instructions_block4, instructions_block5]
-}
-
 var end_block = {
     type: 'poldrack-text',
-    text: '<div class = "centerbox"><p class = "center-block-text">Thanks for playing! </p><p class = center-block-text>Press <strong>enter</strong> to continue.</p></div>',
+    text: `<div class = "centerbox"><p class = "center-block-text">Thanks for playing! </p><p class = center-block-text>Press <strong>enter</strong> to continue.</p></div>`,
     cont_key: [13],
     data: {
         trial_id: "end",
@@ -476,9 +446,33 @@ var end_block = {
     on_finish: assessPerformance
 };
 
-var start_practice_block = {
+var start_0back_practice = {
     type: 'poldrack-text',
-    text: '<div class = centerbox><p class = block-text><p class = block-text><font size=24>Practice</font><br /><br />Let\'s practice.<br /><br />During practice you\'ll see if you are correct or incorrect after responding. After practice we\'ll go again but without the correct / incorrect feedback.<br /><br /> Press <strong>enter</strong> to begin.</p></div>',
+    text: get_0back_practice_instructions,
+    cont_key: [13],
+    data: {
+        trial_id: "0back-instruction"
+    },
+    timing_response: 180000,
+    timing_post_trial: 1000,
+    on_finish: set_new_block
+};
+
+var start_2back_practice = {
+    type: 'poldrack-text',
+    text: practice_instructions_2back,
+    cont_key: [13],
+    data: {
+        trial_id: "2back-instruction"
+    },
+    timing_response: 180000,
+    timing_post_trial: 1000,
+    on_finish: set_new_block
+};
+
+var start_test_instructions = {
+    type: 'poldrack-text',
+    text: get_start_test_instructions,
     cont_key: [13],
     data: {
         trial_id: "instruction"
@@ -487,40 +481,46 @@ var start_practice_block = {
     timing_post_trial: 1000
 };
 
-var update_params_block = {
+var update_0back_target_block = {
     type: 'call-function',
-    func: update_params,
+    func: update_0back_target,
     data: {
-        trial_id: "update_params_block"
+        trial_id: "update_0back_target"
     },
     timing_post_trial: 0
 }
 
-var update_target_block = {
+var update_nback_target_block = {
     type: 'call-function',
-    func: update_target,
+    func: update_nback_target,
     data: {
-        trial_id: "update_target"
+        trial_id: "update_nback_target"
     },
     timing_post_trial: 0
 }
 
-var start_test_block = {
+var start_0back_new_block = {
     type: 'poldrack-text',
     data: {
-        exp_stage: "test",
+        exp_stage: "0back-test",
         trial_id: "delay_text"
     },
-    text: getText,
+    text: get_0back_new_block_instructions,
     cont_key: [13],
     timing_response: 900000,
-    on_finish: function () {
-        block_trial = 0
-        stims = []
-        trials_left = num_trials + delay
-        target_trials = []
-        block_acc = 0;
-    }
+    on_finish: set_new_block
+};
+
+var start_nback_new_block = {
+    type: 'poldrack-text',
+    data: {
+        exp_stage: `nback-test`,
+        trial_id: "delay_text"
+    },
+    text: get_nback_new_block_instructions,
+    cont_key: [13],
+    timing_response: 900000,
+    on_finish: set_new_block
 };
 
 
@@ -528,39 +528,61 @@ var start_test_block = {
 // ######################################################
 
 //#######################
-// 1-back practice
-practice_trials = []
-array = genSet(objects, 1)
-for (var i = 0; i < (num_trials + 1); i++) {
-    var stim = array[i]
-    stims.push(stim)
+// 0-back practice
+practice_0back_block = []
+for (var i = 0; i < block_len; i++) {
+    var practice_0back_trial = {
+        type: 'poldrack-categorize',
+        is_html: true,
+        stimulus: getStim,
+        key_answer: getCorrectResponse,
+        data: {
+            trial_id: "stim",
+            exp_stage: "0back-practice",
+            stim: curr_stim,
+            target: getTarget
+        },
+        correct_text: CORRECT_FEEDBACK,
+        incorrect_text: INCORRECT_FEEDBACK,
+        timeout_message: TIMEOUT_MSG,
+        timing_feedback_duration: 500,
+        show_stim_with_feedback: false,
+        response_ends_trial: false,
+        choices: [match_key, mismatch_key],
+        timing_stim: 500,
+        timing_response: deadline,
+        timing_post_trial: 500
+    };
+    practice_0back_block.push(practice_0back_trial)
+}
 
-    if (i > 0) target = array[i - 1];
-    if (stim == target) correct_response = match_key;
-    else correct_response = mismatch_key;
 
-    if (i == 0) {
+//#######################
+// 2-back practice
+practice_2back_block = []
+for (var i = 0; i < block_len + 2; i++) {
+    // starting trial 2 there's a target, feedback can be given
+    if (i > 1) {
+        correct_text = CORRECT_FEEDBACK;
+        incorrect_text = INCORRECT_FEEDBACK;
+        timeout_message = TIMEOUT_MSG;
+    } else {
+        // default empty feedback texts if i<=1
         correct_text = "&nbsp;"
         incorrect_text = "&nbsp;"
         timeout_message = "&nbsp;"
-        show_stim_with_feedback = false
-    } else {
-        correct_text = '<div class = fb_box style="border: 20px solid green"><div class = center-text style="font-size:inherit"><font size = 20>correct</font></div></div>';
-        timeout_message = '<div class = fb_box style="border: 20px solid red"><div class = center-text style="font-size:inherit"><font size = 20>too slow</font></div></div>';
-        incorrect_text = '<div class = fb_box style="border: 20px solid red"><div class = center-text style="font-size:inherit"><font size = 20>incorrect</font></div></div>';
-        show_stim_with_feedback = true
     }
 
-    var practice_block = {
+    var practice_2back_trial = {
         type: 'poldrack-categorize',
         is_html: true,
-        stimulus: '<div class = centerbox><div class = center-text><div class = svg><img class="img" src="stims/' + stim + '" style="max-width:150px"></div></div></div>',
-        key_answer: correct_response,
+        stimulus: getStim,
+        key_answer: getCorrectResponse,
         data: {
             trial_id: "stim",
-            exp_stage: "practice",
-            stim: stim,
-            target: target
+            exp_stage: "2back-practice",
+            stim: curr_stim,
+            target: getTarget
         },
         correct_text: correct_text,
         incorrect_text: incorrect_text,
@@ -573,65 +595,76 @@ for (var i = 0; i < (num_trials + 1); i++) {
         timing_response: deadline,
         timing_post_trial: 500
     };
-    practice_trials.push(practice_block)
+    practice_2back_block.push(practice_2back_trial)
 }
 
 //#######################
 // All other blocks
-var test_block = {
+var test_trial = {
     type: 'poldrack-single-stim',
     is_html: true,
     target: getTarget,
     stimulus: getStim,
     data: getData,
-    correct_response: correct_response,
+    correct_response: getCorrectResponse,
     choices: [match_key, mismatch_key],
     timing_stim: 500,
     timing_response: getDeadline,
     timing_post_trial: 0,
     on_finish: function (data) {
-        record_acc(data, target)
+        post_test_trial(data)
     }
 };
 
-var test_node = {
-    timeline: [update_target_block, test_block],
+var test_0back_block = {
+    timeline: [test_trial],
     loop_function: function () {
-        trials_left -= 1
-        if (trials_left === 0) {
-            return false
-        } else {
-            return true
-        }
+        return trial_i < block_len;  // trial_i is incremented in test_trial, as part of getStim
     }
 }
 
-//Set up experiment
+var test_nback_block = {
+    timeline: [update_nback_target_block, test_trial],
+    loop_function: function () {
+        return trial_i < block_len + delay; // trial_i is incremented in test_trial, as part of getStim
+    }
+}
+
+//#####################
+//# Set up experiment #
+//#####################
+
 var adaptive_n_back_experiment = []
 
-// 		Instructions
-adaptive_n_back_experiment.push(instruction_node);
+// General instructions
+adaptive_n_back_experiment.push(general_instructions_block);
 
+// 0-back
 // 		Practice
-adaptive_n_back_experiment.push(start_practice_block)
-adaptive_n_back_experiment = adaptive_n_back_experiment.concat(practice_trials)
+adaptive_n_back_experiment.push(practice_instructions_block_0back)
+adaptive_n_back_experiment.push(update_0back_target_block)
+adaptive_n_back_experiment.push(start_0back_practice)
+adaptive_n_back_experiment = adaptive_n_back_experiment.concat(practice_0back_block)
 
-// 		Test blocks
-array_2back = []
-array_3back = []
-for (var b = 1; b <= num_blocks; b++) {
-    array = {
-        "1": genSet(objects, 1),
-        "2": genSet(objects, 2),
-        "3": genSet(objects, 3)
-    }
-    adaptive_n_back_experiment.push(update_params_block)
-    adaptive_n_back_experiment.push(start_test_block)
-    adaptive_n_back_experiment.push(test_node)
+//      Test
+adaptive_n_back_experiment.push(start_test_instructions)
+for (var b = 0; b < n_0back_test_blocks; b++) {
+    adaptive_n_back_experiment.push(update_0back_target_block)
+    adaptive_n_back_experiment.push(start_0back_new_block)
+    adaptive_n_back_experiment.push(test_0back_block)
+}
 
-    if (b == 3 | b == 6) { // run an attention check on blocks 3 and 6
-        adaptive_n_back_experiment.push(attention_node)
-    }
+// 2-back
+// 		Practice
+adaptive_n_back_experiment.push(practice_instructions_block_2back)
+adaptive_n_back_experiment.push(start_2back_practice)
+adaptive_n_back_experiment = adaptive_n_back_experiment.concat(practice_2back_block)
+
+// 		Test
+adaptive_n_back_experiment.push(start_test_instructions)
+for (var b = 0; b < n_nback_test_blocks; b++) {
+    adaptive_n_back_experiment.push(start_nback_new_block)
+    adaptive_n_back_experiment.push(test_nback_block)
 }
 
 //		End
