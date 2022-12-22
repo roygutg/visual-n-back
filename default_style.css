@@ -74,8 +74,19 @@ body {
   text-align: center;
   margin: 0 auto;
   margin-bottom: 1em;
-  font-size: 26px;
+  font-size: 24px;
   line-height: 120%;
+}
+
+.block-title {
+    width:100%;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: underline;
+    margin: 0 auto;
+    margin-bottom: 1em;
+    font-size: 36px;
+    line-height: 120%;
 }
 
 /* used for large text shown in the center of the screen, like FB or stimuli */
