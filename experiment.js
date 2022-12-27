@@ -85,9 +85,19 @@ function assessPerformance() {
 }
 
 
-var randomDraw = function (lst) {
-    var index = Math.floor(Math.random() * (lst.length))
-    return lst[index]
+var randomDraw = function (lst, k) {
+    // draws k random elements from lst, without replacement
+    var lst_copy = [...lst];
+    var sample = [];
+    var index;
+
+    for (var i = 0; i < k; i++) {
+        index = Math.floor(Math.random() * (lst_copy.length));
+        sample.push(lst_copy[index]);
+        lst_copy.splice(index, 1)
+    }
+
+    return k === 1 ? sample[0] : sample
 };
 
 
@@ -112,8 +122,15 @@ var set_new_block = function () {
     // Check if we need to increase or decrease the response deadline
     var count_timeouts = 0
     var experiment_data = jsPsych.data.getTrialsOfType('poldrack-single-stim')
-    for (var i = 0; i < experiment_data.length; ++i) {
-        if (experiment_data[i].rt == -1 && experiment_data[i].block_num == block_i)
+
+    function is_in_curr_block(trial) {
+        return trial.block_num === block_i;
+    }
+
+    var curr_block_data = experiment_data.filter(is_in_curr_block)
+    curr_block_data = curr_block_data.slice(delay) // drop first n trials since no response to them is needed
+    for (var i = 0; i < curr_block_data.length; ++i) {
+        if (curr_block_data[i].rt == -1)
             count_timeouts++;
     }
 
@@ -145,7 +162,7 @@ var set_new_block = function () {
 }
 
 var update_0back_target = function () {
-    target = randomDraw(objects);
+    target = randomDraw(objects, 1);
 };
 
 var update_nback_target = function () {
@@ -269,9 +286,26 @@ function genSet(stimuli, n) {
     }
     array = jsPsych.randomization.shuffle(array)
 
-    if (n > 0) {
-        // add targets if there aren't enough. Note: each iteration adds a target buy may also ruin an existing one, so
-        // there is no guarantee this loop ends with exactly n_wanted_targets targets!
+    // add targets if there aren't enough:
+    if (n === 0) {
+        possible_new_target_indices = []
+        n_targets = 0
+        for (i = 0; i < array.length; i++) {
+            if (array[i] === target) {
+                n_targets++;
+            } else {
+                possible_new_target_indices.push(i)
+            }
+        }
+        new_target_indices = randomDraw(possible_new_target_indices, n_wanted_targets - n_targets)
+        for (i = 0; i < new_target_indices.length; i++) {
+            new_target_idx = new_target_indices[i]
+            array[new_target_idx] = target
+        }
+
+    } else { // n>0
+        // Note: each iteration adds a target but may also ruin an existing one, so there is no guarantee this loop ends
+        // with exactly n_wanted_targets targets!
         n_targets = cnbm(array, n)
         for (var n_missing_targets = n_wanted_targets - n_targets; n_missing_targets > 0; n_missing_targets--) {
             new_target_idx = getRand(n, array.length - 1)
@@ -329,27 +363,32 @@ if (document.images) {
 
 /* define static blocks */
 var welcome_text = `Let's play a memory game! Focus will be important here, so before we begin please make sure you're ready for about <strong>ten minutes</strong> of uninterrupted game time. You will have opportunities to take short breaks throughout.`
+var all_stimuli_table = `<table style="width:100%">
+                         <tr> <td style="text-align:center;"><img src="stims/${objects[0]}" style="max-width:150px"></td>
+                              <td style="text-align:center;"><img src="stims/${objects[1]}" style="max-width:150px"></td>
+                              <td style="text-align:center;"><img src="stims/${objects[2]}" style="max-width:150px"></td>
+                              <td style="text-align:center;"><img src="stims/${objects[3]}" style="max-width:150px"></td>
+                              <td style="text-align:center;"><img src="stims/${objects[4]}" style="max-width:150px"></td> </tr>
+                         <tr> <td style="text-align:center;"><img src="stims/${objects[5]}" style="max-width:150px"></td>
+                              <td style="text-align:center;"><img src="stims/${objects[6]}" style="max-width:150px"></td>
+                              <td style="text-align:center;"><img src="stims/${objects[7]}" style="max-width:150px"></td>
+                              <td style="text-align:center;"><img src="stims/${objects[8]}" style="max-width:150px"></td>
+                              <td style="text-align:center;"><img src="stims/${objects[9]}" style="max-width:150px"></td> </tr>
+                         </table>`
 
 general_instructions = `<div class = centerbox>
          <p class = block-title>Instructions</p>
          <p class = block-text>In this game you will see sequences of shapes. These are all the possible shapes you may see:</p>
-         <table style="width:100%">
-               <tr> <td style="text-align:center;"><img src="stims/${objects[0]}" style="max-width:150px"></td>
-                    <td style="text-align:center;"><img src="stims/${objects[1]}" style="max-width:150px"></td>
-                    <td style="text-align:center;"><img src="stims/${objects[2]}" style="max-width:150px"></td>
-                    <td style="text-align:center;"><img src="stims/${objects[3]}" style="max-width:150px"></td>
-                    <td style="text-align:center;"><img src="stims/${objects[4]}" style="max-width:150px"></td> </tr>
-               <tr> <td style="text-align:center;"><img src="stims/${objects[5]}" style="max-width:150px"></td>
-                    <td style="text-align:center;"><img src="stims/${objects[6]}" style="max-width:150px"></td>
-                    <td style="text-align:center;"><img src="stims/${objects[7]}" style="max-width:150px"></td>
-                    <td style="text-align:center;"><img src="stims/${objects[8]}" style="max-width:150px"></td>
-                    <td style="text-align:center;"><img src="stims/${objects[9]}" style="max-width:150px"></td> </tr>
-               </table>
+         ${all_stimuli_table}
          </div>`
 
-instructions_0back = `<div class = centerbox>
+instructions_0back_page1 = `<div class = centerbox>
         <p class = block-title>Stage 1 – Instructions</p>
         <p class = block-text>In the first stage of this game, your goal is to identify when a specific "target" shape appears. A new target shape will be presented at the beginning of each round.</p>
+        </div>`;
+
+instructions_0back_page2 = `<div class = centerbox>
+        <p class = block-title>Stage 1 – Instructions</p>
         <p class = block-text>Each time a shape appears on the screen, your goal is to determine if it's the target shape. If it is, we'll call that a match. If it's a different shape, that's a mismatch.</p>
         <p class = block-text>Your job is to respond by pressing the arrow keys:</p>
         <p class = center-block-text>press the <span style="color:green"><b>right arrow</b></span> key if it's a <span style="color:green"><b>match</b></span> <br>
@@ -361,9 +400,19 @@ instructions_2back_page1 = `<div class = centerbox>
         <p class = block-title>Stage 2 – Instructions</p>
         <p class = block-text>Stage 1 complete! Moving on to stage 2.</p>
         <p class = block-text>In this stage, each time a shape appears on the screen, your goal is to determine whether it's the same shape that appeared <b>2 shapes back</b>. If it is, we'll call that a match. If it's a different shape, that's a mismatch.</p>
+        <table style="width:100%"> <tr>
+        <td style="text-align:center;"><img src="imgs/2back_diagram.svg" style="max-width:300px"></td>
+        <td style="text-align:center;"><img src="imgs/1back_diagram_nonmatch.svg" style="max-width:300px"></td>
+        </tr> </table>
         </div>`;
 
 instructions_2back_page2 = `<script>slides();</script><div class = centerbox>
+        <p class = block-title>Stage 2 – Instructions</p>
+        <p class = block-text>As a reminder, here are all possible shape you may see:</p>
+        ${all_stimuli_table}
+        </div>`;
+
+instructions_2back_page3 = `<script>slides();</script><div class = centerbox>
         <p class = block-title>Stage 2 – Instructions</p>
         <p class = block-text>The shapes will be presented one after another in a sequence like the animation below. Can you spot the 2-back matches and mismatches?</p>
         <ul id="slides"><li class="slide showing"><img src="stims/${objects[1]}" style="max-width:250px"></li>
@@ -374,27 +423,14 @@ instructions_2back_page2 = `<script>slides();</script><div class = centerbox>
         </div>`;
 // TODO: is there a way to get the "next" button lower without all those manual line breaks?
 
-instructions_2back_page3 = `<div class = centerbox>
+instructions_2back_page4 = `<div class = centerbox>
         <p class = block-title>Stage 2 – Instructions</p>
         <p class = block-text>Your job is to respond by pressing the arrow keys:</p>
         <p class = center-block-text>press the <span style="color:green"><b>right arrow</b></span> key if it's a <span style="color:green"><b>match</b></span> <br>
         press the <span style="color:red"><b>down arrow</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
         <p class = center-block-text><img src="imgs/arrow_keys.svg" style="max-width:300px"></p>
+        <p class = block-text>The first two shapes in each round are neither match nor mismatch, so no response to them is needed.</p>
         </div>`
-
-// TODO: 1-back instructions had this visual examples, should we add something similar?
-
-//         `<div class = centerbox style="height:80vh;text-align:center;"><p class = block-text><span style="font-size:24pt">1 Back</span><br /><br />
-//          Let's start with the 1-back.<br /><br />
-//          The objective of the 1-back is to identify when the shape you see is the same or different from the shape you saw <strong><u>1 item back</u></strong>.<br \><br \>
-//          In the example below, the current animal is a <strong><u>bee</u></strong>, and 1-back animal was also a <strong><u>bee</u></strong>, so we have a 1-back match!</p>
-//          <img src="imgs/1back_diagram.svg" style="max-width:500px"></div>`
-
-//         `<div class = centerbox style="height:80vh;text-align:center;"><p class = block-text><span style="font-size:24pt">1 Back</span><br /><br />
-//         You will also identify mis-matches. <br \><br \>
-//         In the example below, the current object is a <strong><u>bee</u></strong> but the 1-back animal was a <strong><u>whale</u></strong>, so we have a 1-back mis-match. </p>
-//         <img src="imgs/1back_diagram_nonmatch.svg" style="max-width:500px"></div>`
-
 
 var general_instructions_block = {
     type: 'poldrack-instructions',
@@ -409,7 +445,7 @@ var general_instructions_block = {
 
 var practice_instructions_block_0back = {
     type: 'poldrack-instructions',
-    pages: [instructions_0back],
+    pages: [instructions_0back_page1, instructions_0back_page2],
     data: {
         trial_id: 'instruction'
     },
@@ -420,7 +456,7 @@ var practice_instructions_block_0back = {
 
 var practice_instructions_block_2back = {
     type: 'poldrack-instructions',
-    pages: [instructions_2back_page1, instructions_2back_page2, instructions_2back_page3],
+    pages: [instructions_2back_page1, instructions_2back_page2, instructions_2back_page3, instructions_2back_page4],
     data: {
         trial_id: 'instruction'
     },
@@ -566,11 +602,13 @@ for (var i = 0; i < block_len + 2; i++) {
         correct_text = CORRECT_FEEDBACK;
         incorrect_text = INCORRECT_FEEDBACK;
         timeout_message = TIMEOUT_MSG;
+        fb_duration = 500;
     } else {
         // default empty feedback texts if i<=1
         correct_text = "&nbsp;"
         incorrect_text = "&nbsp;"
         timeout_message = "&nbsp;"
+        fb_duration = 1; // can't set to 0 because if this evaluates to false it reverts to default
     }
 
     var practice_2back_trial = {
@@ -587,7 +625,7 @@ for (var i = 0; i < block_len + 2; i++) {
         correct_text: correct_text,
         incorrect_text: incorrect_text,
         timeout_message: timeout_message,
-        timing_feedback_duration: 500,
+        timing_feedback_duration: fb_duration,
         show_stim_with_feedback: false,
         response_ends_trial: false,
         choices: [match_key, mismatch_key],
