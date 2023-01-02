@@ -5,7 +5,7 @@
 CORRECT_FEEDBACK = `<div class = centerbox><div style="color:green" class = center-text>Correct!</div></div>`
 INCORRECT_FEEDBACK = `<div class = centerbox><div style="color:red" class = center-text>Incorrect</div></div>`
 TIMEOUT_MSG = `<div class = centerbox><div class = center-text>Respond faster</div></div>`
-TOO_SLOW_ALERT = `Whoa! Don't take this the wrong way, but you were going too slow on that last round. Please respond to each shape *before* the next shape appears on the screen.`
+TOO_SLOW_ALERT = `Too slow. Please respond to each shape <b>before</b> the next shape appears on the screen.`
 
 // task specific variables
 var n_0back_test_blocks = 1 // did not exist originally
@@ -206,17 +206,18 @@ var getCorrectResponse = function () {
 
 var get_0back_practice_instructions = function () {
     return `<div class = centerbox>
-        <p class = block-title>Stage 1 – Practice</p>
+        <p class = block-title>Fixed Matching Stage – Practice</p>
         <p class = block-text>Let's practice. In this round your target shape is this:</p>
         <p class = center-block-text><img src="stims/${target}" style="max-width:500px"></p>
-        <p class = block-text>During practice you'll see if you are correct or incorrect after responding.</p>
+        <p class = block-text>During the practice session you'll get feedback whether you were correct or not after each response.</p>
         <p class = block-text>Press <strong>enter</strong> to continue.</p>
         </div>`
 }
 
 var practice_instructions_2back = `<div class = centerbox>
-        <p class = block-title>Stage 2 – Practice</p>
-        <p class = block-text>Let's practice. During practice you'll see if you are correct or incorrect after responding.</p>
+        <p class = block-title>2-Back Matching Stage – Practice</p>
+        <p class = block-text>Let's practice. We remind you that you need to indicate whether the one before the last shape is identical to the current shape you see.</p>
+        <p class = block-text>During the practice session you'll get feedback whether you were correct or not after each response.</p>
         <p class = block-text>Press <strong>enter</strong> to begin.</p>
         </div>`
 
@@ -226,8 +227,8 @@ var get_start_test_instructions = function () {
     return `<div class = centerbox>
         <p class = block-title>Stage ${stage} – Instructions</p>
         <p class = block-text>Practice complete, good job!</p>
-        <p class = block-text>The following are test rounds, so correct/incorrect feedback <b>will not be shown</b>.</p>
-        <p class = block-text>Although you won't know if you are responding correctly, it is important that you be <strong>as accurate as you can</strong>, and respond to each shape <strong>before the next shape appears</strong> on the screen.</p>
+        <p class = block-text>Note that in the next rounds there will not be any feedback.</p>
+        <p class = block-text>It is important that you be <strong>as accurate as you can</strong>, and respond to each shape <strong>before the next shape appears</strong> on the screen.</p>
         <p class = block-text>Press <strong>enter</strong> to begin.</p>
         </div>`
 }
@@ -240,7 +241,7 @@ var get_0back_new_block_instructions = function () {
         <p class = block-title>Stage 1 – Round ${curr_0back_test_block} (of ${n_0back_test_blocks})</p>
         <p class = block-text>This is your target shape in this round:</p>
         <p class = center-block-text><img src="stims/${target}" style="max-width:500px"></p>
-        <p class = block-text>Give your eyes and neck muscles a short rest, and begin when you feel ready.</p>
+        <p class = block-text>You can take a short rest, and begin when you feel ready.</p>
         <p class = block-text>Press <strong>enter</strong> to begin.</p>
         </div>`
 }
@@ -252,7 +253,7 @@ var get_nback_new_block_instructions = function () {
     return `<div class = centerbox>
         <p class = block-title>Stage 2 – Round ${curr_nback_test_block} (of ${n_nback_test_blocks})</p>
         <p class = block-text>Ready for the next round?</p>
-        <p class = block-text>Give your eyes and neck muscles a short rest, and begin when you feel ready.</p>
+        <p class = block-text>You can take a short rest, and begin when you feel ready.</p>
         <p class = block-text>Press <strong>enter</strong> to begin.</p>
         </div>`
 }
@@ -362,7 +363,7 @@ if (document.images) {
 /* ************************************ */
 
 /* define static blocks */
-var welcome_text = `Let's play a memory game! Focus will be important here, so before we begin please make sure you're ready for about <strong>ten minutes</strong> of uninterrupted game time. You will have opportunities to take short breaks throughout.`
+var welcome_text = `The following task is a memory game. Focus will be important here, so before we begin please make sure you're ready for about <strong>ten minutes</strong> of uninterrupted game time. You will have opportunities to take short breaks throughout.`
 var all_stimuli_table = `<table style="width:100%">
                          <tr> <td style="text-align:center;"><img src="stims/${objects[0]}" style="max-width:150px"></td>
                               <td style="text-align:center;"><img src="stims/${objects[1]}" style="max-width:150px"></td>
@@ -378,18 +379,20 @@ var all_stimuli_table = `<table style="width:100%">
 
 general_instructions = `<div class = centerbox>
          <p class = block-title>Instructions</p>
-         <p class = block-text>In this game you will see sequences of shapes. These are all the possible shapes you may see:</p>
+         <p class = block-text> In the game you will see one shape after another. Here are all the possible shapes you might see:</p>
          ${all_stimuli_table}
          </div>`
 
 instructions_0back_page1 = `<div class = centerbox>
-        <p class = block-title>Stage 1 – Instructions</p>
-        <p class = block-text>In the first stage of this game, your goal is to identify when a specific "target" shape appears. A new target shape will be presented at the beginning of each round.</p>
+        <p class = block-title>Fixed Matching Stage – Instructions</p>
+        <p class = block-text>For each round in this stage, we will show you a target shape you will need to remember.</p>
+        <p class = block-text>Then, you will see a series of shapes, one after another.</p>
+        <p class = block-text>Your goal is to indicate for each shape you see whether it is the target shape or not.</p>
         </div>`;
 
 instructions_0back_page2 = `<div class = centerbox>
-        <p class = block-title>Stage 1 – Instructions</p>
-        <p class = block-text>Each time a shape appears on the screen, your goal is to determine if it's the target shape. If it is, we'll call that a match. If it's a different shape, that's a mismatch.</p>
+        <p class = block-title>Fixed Matching Stage – Instructions</p>
+        <p class = block-text> Remember, each time a shape appears on the screen, your goal is to indicate if it is the target shape or not.</p>
         <p class = block-text>Your job is to respond by pressing the arrow keys:</p>
         <p class = center-block-text>press the <span style="color:green"><b>right arrow</b></span> key if it's a <span style="color:green"><b>match</b></span> <br>
          press the <span style="color:red"><b>down arrow</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
@@ -397,9 +400,9 @@ instructions_0back_page2 = `<div class = centerbox>
         </div>`;
 
 instructions_2back_page1 = `<div class = centerbox>
-        <p class = block-title>Stage 2 – Instructions</p>
+        <p class = block-title>2-Back Matching Stage – Instructions</p>
         <p class = block-text>Stage 1 complete! Moving on to stage 2.</p>
-        <p class = block-text>In this stage, each time a shape appears on the screen, your goal is to determine whether it's the same shape that appeared <b>2 shapes back</b>. If it is, we'll call that a match. If it's a different shape, that's a mismatch.</p>
+        <p class = block-text>In stage 2, each time a shape appears on the screen, your goal is to indicate whether it is the same shape that appeared <b>2 shapes back</b> or not.</p>
         <table style="width:100%"> <tr>
         <td style="text-align:center;"><img src="imgs/2back_diagram.svg" style="max-width:300px"></td>
         <td style="text-align:center;"><img src="imgs/1back_diagram_nonmatch.svg" style="max-width:300px"></td>
@@ -407,29 +410,28 @@ instructions_2back_page1 = `<div class = centerbox>
         </div>`;
 
 instructions_2back_page2 = `<script>slides();</script><div class = centerbox>
-        <p class = block-title>Stage 2 – Instructions</p>
-        <p class = block-text>As a reminder, here are all possible shape you may see:</p>
+        <p class = block-title>2-Back Matching Stage – Instructions</p>
+        <p class = block-text>As a reminder, here are all possible shapes you may see:</p>
         ${all_stimuli_table}
         </div>`;
 
 instructions_2back_page3 = `<script>slides();</script><div class = centerbox>
-        <p class = block-title>Stage 2 – Instructions</p>
-        <p class = block-text>The shapes will be presented one after another in a sequence like the animation below. Can you spot the 2-back matches and mismatches?</p>
+        <p class = block-title>2-Back Matching Stage – Instructions</p>
+        <p class = block-text>The shapes will be presented one after another in a series like the animation below. Can you spot the 2-back matches?</p>
         <ul id="slides"><li class="slide showing"><img src="stims/${objects[1]}" style="max-width:250px"></li>
         <li class="slide"></li> <li class="slide"><img src="stims/${objects[3]}" style="max-width:250px"></li>
         <li class="slide"></li> <li class="slide"><img src="stims/${objects[1]}" style="max-width:250px"></li>
         <li class="slide"></li> <li class="slide"><img src="stims/${objects[2]}" style="max-width:250px"></li>
         <li class="slide"> </ul> <br><br><br><br><br><br>
         </div>`;
-// TODO: is there a way to get the "next" button lower without all those manual line breaks?
 
 instructions_2back_page4 = `<div class = centerbox>
-        <p class = block-title>Stage 2 – Instructions</p>
+        <p class = block-title>2-Back Matching Stage – Instructions</p>
         <p class = block-text>Your job is to respond by pressing the arrow keys:</p>
         <p class = center-block-text>press the <span style="color:green"><b>right arrow</b></span> key if it's a <span style="color:green"><b>match</b></span> <br>
         press the <span style="color:red"><b>down arrow</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
         <p class = center-block-text><img src="imgs/arrow_keys.svg" style="max-width:300px"></p>
-        <p class = block-text>The first two shapes in each round are neither match nor mismatch, so no response to them is needed.</p>
+        <p class = block-text>No response is needed for the first two shapes in each round.</p>
         </div>`
 
 var general_instructions_block = {
