@@ -208,7 +208,7 @@ var get_0back_practice_instructions = function () {
     return `<div class = centerbox>
         <p class = block-title>Fixed Matching Stage – Practice</p>
         <p class = block-text>Let's practice. In this round your target shape is this:</p>
-        <p class = center-block-text><img src="stims/${target}" style="max-width:500px"></p>
+        <p class = center-block-text><img src="stims/${target}" style="max-width:200px"></p>
         <p class = block-text>During the practice session you'll get feedback whether you were correct or not after each response.</p>
         <p class = block-text>Press <strong>enter</strong> to continue.</p>
         </div>`
@@ -222,10 +222,10 @@ var practice_instructions_2back = `<div class = centerbox>
         </div>`
 
 var get_start_test_instructions = function () {
-    stage = delay === 0 ? "1" : "2";
+    stage_name = delay === 0 ? "Fixed Matching Stage" : "2-Back Matching Stage";
 
     return `<div class = centerbox>
-        <p class = block-title>Stage ${stage} – Instructions</p>
+        <p class = block-title>${stage_name} – Instructions</p>
         <p class = block-text>Practice complete, good job!</p>
         <p class = block-text>Note that in the next rounds there will not be any feedback.</p>
         <p class = block-text>It is important that you be <strong>as accurate as you can</strong>, and respond to each shape <strong>before the next shape appears</strong> on the screen.</p>
@@ -238,9 +238,9 @@ var get_0back_new_block_instructions = function () {
     var curr_0back_test_block = block_i;
 
     return `<div class = centerbox>
-        <p class = block-title>Stage 1 – Round ${curr_0back_test_block} (of ${n_0back_test_blocks})</p>
+        <p class = block-title>Fixed Matching Stage – Round ${curr_0back_test_block} (of ${n_0back_test_blocks})</p>
         <p class = block-text>This is your target shape in this round:</p>
-        <p class = center-block-text><img src="stims/${target}" style="max-width:500px"></p>
+        <p class = center-block-text><img src="stims/${target}" style="max-width:200px"></p>
         <p class = block-text>You can take a short rest, and begin when you feel ready.</p>
         <p class = block-text>Press <strong>enter</strong> to begin.</p>
         </div>`
@@ -251,7 +251,7 @@ var get_nback_new_block_instructions = function () {
     var curr_nback_test_block = block_i - n_0back_test_blocks - 1;
 
     return `<div class = centerbox>
-        <p class = block-title>Stage 2 – Round ${curr_nback_test_block} (of ${n_nback_test_blocks})</p>
+        <p class = block-title>2-Back Matching Stage – Round ${curr_nback_test_block} (of ${n_nback_test_blocks})</p>
         <p class = block-text>Ready for the next round?</p>
         <p class = block-text>You can take a short rest, and begin when you feel ready.</p>
         <p class = block-text>Press <strong>enter</strong> to begin.</p>
@@ -418,11 +418,11 @@ instructions_2back_page2 = `<script>slides();</script><div class = centerbox>
 instructions_2back_page3 = `<script>slides();</script><div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Instructions</p>
         <p class = block-text>The shapes will be presented one after another in a series like the animation below. Can you spot the 2-back matches?</p>
-        <ul id="slides"><li class="slide showing"><img src="stims/${objects[1]}" style="max-width:250px"></li>
-        <li class="slide"></li> <li class="slide"><img src="stims/${objects[3]}" style="max-width:250px"></li>
-        <li class="slide"></li> <li class="slide"><img src="stims/${objects[1]}" style="max-width:250px"></li>
-        <li class="slide"></li> <li class="slide"><img src="stims/${objects[2]}" style="max-width:250px"></li>
-        <li class="slide"> </ul> <br><br><br><br><br><br>
+        <ul id="slides"><li class="slide showing"><img src="stims/${objects[1]}" style="max-width:200px"></li>
+        <li class="slide"></li> <li class="slide"><img src="stims/${objects[3]}" style="max-width:200px"></li>
+        <li class="slide"></li> <li class="slide"><img src="stims/${objects[1]}" style="max-width:200px"></li>
+        <li class="slide"></li> <li class="slide"><img src="stims/${objects[2]}" style="max-width:200px"></li>
+        <li class="slide"> </ul>
         </div>`;
 
 instructions_2back_page4 = `<div class = centerbox>
