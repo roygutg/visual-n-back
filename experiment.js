@@ -16,16 +16,16 @@ var mismatch_key = 40 // down arrow
 
 // stimuli
 var objects = [
-    "img0.svg",
-    "img1.svg",
-    "img2.svg",
-    "img3.svg",
-    "img4.svg",
-    "img5.svg",
-    "img6.svg",
-    "img7.svg",
-    "img8.svg",
-    "img9.svg"
+    "bee.svg",
+    "butterfly.svg",
+    "elephant.svg",
+    "fish.svg",
+    "lion.svg",
+    "lobster.svg",
+    "parrot.svg",
+    "pig.svg",
+    "tortoise.svg",
+    "whale.svg"
 ]
 
 // globals
