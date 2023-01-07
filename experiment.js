@@ -11,8 +11,8 @@ TOO_SLOW_ALERT = `Too slow. Please respond to each shape <b>before</b> the next 
 var n_0back_test_blocks = 1 // did not exist originally
 var n_nback_test_blocks = 2 * n_0back_test_blocks // was 7
 var block_len = 5 // number of trials in ech block, was 20
-var match_key = 39 // right arrow
-var mismatch_key = 40 // down arrow
+var match_key = 13 // enter
+var mismatch_key = 32 // space
 
 // stimuli
 var objects = [
@@ -207,7 +207,7 @@ var getCorrectResponse = function () {
 var get_0back_practice_instructions = function () {
     return `<div class = centerbox>
         <p class = block-title>Fixed Matching Stage – Practice</p>
-        <p class = block-text>Let's practice. In this round your target shape is this:</p>
+        <p class = block-text>Let's practice. In this round your target animal is:</p>
         <p class = center-block-text><img src="stims/${target}" style="max-width:200px"></p>
         <p class = block-text>During the practice session you'll get feedback whether you were correct or not after each response.</p>
         <p class = block-text>Press <strong>enter</strong> to continue.</p>
@@ -216,7 +216,7 @@ var get_0back_practice_instructions = function () {
 
 var practice_instructions_2back = `<div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Practice</p>
-        <p class = block-text>Let's practice. We remind you that you need to indicate whether the one before the last shape is identical to the current shape you see.</p>
+        <p class = block-text>Let's practice. We remind you that you need to indicate whether the one before the last animal is identical to the current one you see.</p>
         <p class = block-text>During the practice session you'll get feedback whether you were correct or not after each response.</p>
         <p class = block-text>Press <strong>enter</strong> to begin.</p>
         </div>`
@@ -228,7 +228,7 @@ var get_start_test_instructions = function () {
         <p class = block-title>${stage_name} – Instructions</p>
         <p class = block-text>Practice complete, good job!</p>
         <p class = block-text>Note that in the next rounds there will not be any feedback.</p>
-        <p class = block-text>It is important that you be <strong>as accurate as you can</strong>, and respond to each shape <strong>before the next shape appears</strong> on the screen.</p>
+        <p class = block-text>It is important that you be <strong>as accurate as you can</strong>, and respond to each image <strong>before the next one appears</strong> on the screen.</p>
         <p class = block-text>Press <strong>enter</strong> to begin.</p>
         </div>`
 }
@@ -363,7 +363,7 @@ if (document.images) {
 /* ************************************ */
 
 /* define static blocks */
-var welcome_text = `The following task is a memory game. Focus will be important here, so before we begin please make sure you're ready for about <strong>ten minutes</strong> of uninterrupted game time. You will have opportunities to take short breaks throughout.`
+var welcome_text = `Welcome to the "n-back" task. Click the button below to begin.`
 var all_stimuli_table = `<table style="width:100%">
                          <tr> <td style="text-align:center;"><img src="stims/${objects[0]}" style="max-width:150px"></td>
                               <td style="text-align:center;"><img src="stims/${objects[1]}" style="max-width:150px"></td>
@@ -379,30 +379,29 @@ var all_stimuli_table = `<table style="width:100%">
 
 general_instructions = `<div class = centerbox>
          <p class = block-title>Instructions</p>
-         <p class = block-text> In the game you will see one shape after another. Here are all the possible shapes you might see:</p>
+         <p class = block-text> In this task you will animals images one after another. Here are all the possible animals you might see:</p>
          ${all_stimuli_table}
          </div>`
 
 instructions_0back_page1 = `<div class = centerbox>
         <p class = block-title>Fixed Matching Stage – Instructions</p>
-        <p class = block-text>For each round in this stage, we will show you a target shape you will need to remember.</p>
-        <p class = block-text>Then, you will see a series of shapes, one after another.</p>
-        <p class = block-text>Your goal is to indicate for each shape you see whether it is the target shape or not.</p>
+        <p class = block-text>For each round in this stage, we will show you a target animal you will need to remember.</p>
+        <p class = block-text>Then, you will see a series of animals images, one after another.</p>
+        <p class = block-text>Your goal is to indicate for each image you see whether it is the target animal or not.</p>
         </div>`;
 
 instructions_0back_page2 = `<div class = centerbox>
         <p class = block-title>Fixed Matching Stage – Instructions</p>
-        <p class = block-text> Remember, each time a shape appears on the screen, your goal is to indicate if it is the target shape or not.</p>
-        <p class = block-text>Your job is to respond by pressing the arrow keys:</p>
-        <p class = center-block-text>press the <span style="color:green"><b>right arrow</b></span> key if it's a <span style="color:green"><b>match</b></span> <br>
-         press the <span style="color:red"><b>down arrow</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
-        <p class = center-block-text><img src="imgs/arrow_keys.svg" style="max-width:300px"></p>
+        <p class = block-text> Remember, each time an image appears on the screen, your goal is to indicate if it is the target animal or not.</p>
+        <p class = block-text>Your job is to respond using the keyboard:</p>
+        <p class = center-block-text>press <span style="color:green"><b>enter</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
+         press the <span style="color:red"><b>space bar</b></span> if it's a <span style="color:red"><b>mismatch</b></span></p>
         </div>`;
 
 instructions_2back_page1 = `<div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Instructions</p>
         <p class = block-text>Stage 1 complete! Moving on to stage 2.</p>
-        <p class = block-text>In stage 2, each time a shape appears on the screen, your goal is to indicate whether it is the same shape that appeared <b>2 shapes back</b> or not.</p>
+        <p class = block-text>In stage 2, each time an animal appears on the screen, your goal is to indicate whether it is the same animal that appeared <b>2 images back</b> or not.</p>
         <table style="width:100%"> <tr>
         <td style="text-align:center;"><img src="imgs/2back_diagram.svg" style="max-width:300px"></td>
         <td style="text-align:center;"><img src="imgs/1back_diagram_nonmatch.svg" style="max-width:300px"></td>
@@ -411,13 +410,13 @@ instructions_2back_page1 = `<div class = centerbox>
 
 instructions_2back_page2 = `<script>slides();</script><div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Instructions</p>
-        <p class = block-text>As a reminder, here are all possible shapes you may see:</p>
+        <p class = block-text>As a reminder, here are all possible animals you may see:</p>
         ${all_stimuli_table}
         </div>`;
 
 instructions_2back_page3 = `<script>slides();</script><div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Instructions</p>
-        <p class = block-text>The shapes will be presented one after another in a series like the animation below. Can you spot the 2-back matches?</p>
+        <p class = block-text>The images will be presented one after another in a sequence like the animation below. Can you spot the 2-back matches?</p>
         <ul id="slides"><li class="slide showing"><img src="stims/${objects[1]}" style="max-width:200px"></li>
         <li class="slide"></li> <li class="slide"><img src="stims/${objects[3]}" style="max-width:200px"></li>
         <li class="slide"></li> <li class="slide"><img src="stims/${objects[1]}" style="max-width:200px"></li>
@@ -427,11 +426,10 @@ instructions_2back_page3 = `<script>slides();</script><div class = centerbox>
 
 instructions_2back_page4 = `<div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Instructions</p>
-        <p class = block-text>Your job is to respond by pressing the arrow keys:</p>
-        <p class = center-block-text>press the <span style="color:green"><b>right arrow</b></span> key if it's a <span style="color:green"><b>match</b></span> <br>
-        press the <span style="color:red"><b>down arrow</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
-        <p class = center-block-text><img src="imgs/arrow_keys.svg" style="max-width:300px"></p>
-        <p class = block-text>No response is needed for the first two shapes in each round.</p>
+        <p class = block-text>Your job is to respond using the keyboard:</p>
+        <p class = center-block-text>press <span style="color:green"><b>enter</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
+        press the <span style="color:red"><b>space bar</b></span> if it's a <span style="color:red"><b>mismatch</b></span></p>
+        <p class = block-text>No response is needed for the first two animals in each round.</p>
         </div>`
 
 var general_instructions_block = {
@@ -473,7 +471,8 @@ var practice_instructions_block_2back = {
 
 var end_block = {
     type: 'poldrack-text',
-    text: `<div class = "centerbox"><p class = "center-block-text">Thanks for playing! </p><p class = center-block-text>Press <strong>enter</strong> to continue.</p></div>`,
+    text: `<div class = centerbox><p class = center-block-text>Task completed!</p>
+           <p class = center-block-text>Press <strong>enter</strong> to continue the experiment.</p></div>`,
     cont_key: [13],
     data: {
         trial_id: "end",
