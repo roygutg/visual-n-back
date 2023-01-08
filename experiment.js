@@ -4,15 +4,15 @@
 // texts
 CORRECT_FEEDBACK = `<div class = centerbox><div style="color:green" class = center-text>Correct!</div></div>`
 INCORRECT_FEEDBACK = `<div class = centerbox><div style="color:red" class = center-text>Incorrect</div></div>`
-TIMEOUT_MSG = `<div class = centerbox><div class = center-text>Respond faster</div></div>`
-TOO_SLOW_ALERT = `Too slow. Please respond to each shape <b>before</b> the next shape appears on the screen.`
+TIMEOUT_MSG = `<div class = centerbox><div class = center-text>Please respond faster</div></div>`
+TOO_SLOW_ALERT = `Too slow. Please respond to each image <b>before</b> the next shape appears on the screen.`
 
 // task specific variables
 var n_0back_test_blocks = 1 // did not exist originally
 var n_nback_test_blocks = 2 * n_0back_test_blocks // was 7
 var block_len = 5 // number of trials in ech block, was 20
-var match_key = 13 // enter
-var mismatch_key = 32 // space
+var match_key = 32 // space
+var mismatch_key = 40 // down arrow
 
 // stimuli
 var objects = [
@@ -35,6 +35,7 @@ var block_i = 0
 var target = ""
 var curr_stim = ""
 var deadline = 2000 // starts at 2000ms and adapts to performance
+var slideInterval = 0;
 
 
 /* ************************************ */
@@ -329,7 +330,7 @@ var slides = function () {
         slides[currentSlide].className = 'slide showing';
     }
 
-    setInterval(nextSlide, 1000);
+    slideInterval = setInterval(nextSlide, 1000);
 };
 
 
@@ -394,8 +395,8 @@ instructions_0back_page2 = `<div class = centerbox>
         <p class = block-title>Fixed Matching Stage – Instructions</p>
         <p class = block-text> Remember, each time an image appears on the screen, your goal is to indicate if it is the target animal or not.</p>
         <p class = block-text>Your job is to respond using the keyboard:</p>
-        <p class = center-block-text>press <span style="color:green"><b>enter</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
-         press the <span style="color:red"><b>space bar</b></span> if it's a <span style="color:red"><b>mismatch</b></span></p>
+        <p class = center-block-text>press the <span style="color:green"><b>space bar</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
+         press the <span style="color:red"><b>down arrow</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
         </div>`;
 
 instructions_2back_page1 = `<div class = centerbox>
@@ -408,7 +409,7 @@ instructions_2back_page1 = `<div class = centerbox>
         </tr> </table>
         </div>`;
 
-instructions_2back_page2 = `<script>slides();</script><div class = centerbox>
+instructions_2back_page2 = `<div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Instructions</p>
         <p class = block-text>As a reminder, here are all possible animals you may see:</p>
         ${all_stimuli_table}
@@ -424,11 +425,11 @@ instructions_2back_page3 = `<script>slides();</script><div class = centerbox>
         <li class="slide"> </ul>
         </div>`;
 
-instructions_2back_page4 = `<div class = centerbox>
+instructions_2back_page4 = `<script>clearInterval(slideInterval);</script><div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Instructions</p>
         <p class = block-text>Your job is to respond using the keyboard:</p>
-        <p class = center-block-text>press <span style="color:green"><b>enter</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
-        press the <span style="color:red"><b>space bar</b></span> if it's a <span style="color:red"><b>mismatch</b></span></p>
+        <p class = center-block-text>press the <span style="color:green"><b>space bar</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
+        press the <span style="color:red"><b>down arrow</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
         <p class = block-text>No response is needed for the first two animals in each round.</p>
         </div>`
 
@@ -634,6 +635,7 @@ for (var i = 0; i < block_len + 2; i++) {
         timing_response: deadline,
         timing_post_trial: 500
     };
+    practice_2back_block.push(update_nback_target_block)
     practice_2back_block.push(practice_2back_trial)
 }
 
