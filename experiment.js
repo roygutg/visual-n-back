@@ -5,7 +5,7 @@
 CORRECT_FEEDBACK = `<div class = centerbox><div style="color:green" class = center-text>Correct!</div></div>`
 INCORRECT_FEEDBACK = `<div class = centerbox><div style="color:red" class = center-text>Incorrect</div></div>`
 TIMEOUT_MSG = `<div class = centerbox><div class = center-text>Please respond faster</div></div>`
-TOO_SLOW_ALERT = `Too slow. Please respond to each image <b>before</b> the next shape appears on the screen.`
+TOO_SLOW_ALERT = `Too slow. Please respond to each image <b>before</b> the next one appears on the screen.`
 
 // task specific variables
 var n_0back_test_blocks = 1 // did not exist originally
@@ -240,7 +240,7 @@ var get_0back_new_block_instructions = function () {
 
     return `<div class = centerbox>
         <p class = block-title>Fixed Matching Stage – Round ${curr_0back_test_block} (of ${n_0back_test_blocks})</p>
-        <p class = block-text>This is your target shape in this round:</p>
+        <p class = block-text>This is your target animal in this round:</p>
         <p class = center-block-text><img src="stims/${target}" style="max-width:200px"></p>
         <p class = block-text>You can take a short rest, and begin when you feel ready.</p>
         <p class = block-text>Press <strong>enter</strong> to begin.</p>
@@ -380,14 +380,14 @@ var all_stimuli_table = `<table style="width:100%">
 
 general_instructions = `<div class = centerbox>
          <p class = block-title>Instructions</p>
-         <p class = block-text> In this task you will animals images one after another. Here are all the possible animals you might see:</p>
+         <p class = block-text> In this task you will see animal images one after the other. Here are all the possible animals you might see:</p>
          ${all_stimuli_table}
          </div>`
 
 instructions_0back_page1 = `<div class = centerbox>
         <p class = block-title>Fixed Matching Stage – Instructions</p>
         <p class = block-text>For each round in this stage, we will show you a target animal you will need to remember.</p>
-        <p class = block-text>Then, you will see a series of animals images, one after another.</p>
+        <p class = block-text>Then, you will see a series of animal images, one after the other.</p>
         <p class = block-text>Your goal will be to indicate for each image you see whether it is the target animal or not.</p>
         </div>`;
 
@@ -418,7 +418,7 @@ instructions_2back_page2 = `<div class = centerbox>
 
 instructions_2back_page3 = `<script>slides();</script><div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Instructions</p>
-        <p class = block-text>The images will be presented one after another in a sequence like the animation below. Can you spot the 2-back matches?</p>
+        <p class = block-text>The images will be presented one after the other in a sequence like the animation below. Can you spot the 2-back matches?</p>
         <ul id="slides"><li class="slide showing"><img src="stims/${objects[1]}" style="max-width:200px"></li>
         <li class="slide"></li> <li class="slide"><img src="stims/${objects[3]}" style="max-width:200px"></li>
         <li class="slide"></li> <li class="slide"><img src="stims/${objects[1]}" style="max-width:200px"></li>
