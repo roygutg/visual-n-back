@@ -388,7 +388,7 @@ instructions_0back_page1 = `<div class = centerbox>
         <p class = block-title>Fixed Matching Stage – Instructions</p>
         <p class = block-text>For each round in this stage, we will show you a target animal you will need to remember.</p>
         <p class = block-text>Then, you will see a series of animals images, one after another.</p>
-        <p class = block-text>Your goal is to indicate for each image you see whether it is the target animal or not.</p>
+        <p class = block-text>Your goal will be to indicate for each image you see whether it is the target animal or not.</p>
         </div>`;
 
 instructions_0back_page2 = `<div class = centerbox>
@@ -397,6 +397,7 @@ instructions_0back_page2 = `<div class = centerbox>
         <p class = block-text>Your job is to respond using the keyboard:</p>
         <p class = center-block-text>press the <span style="color:green"><b>space bar</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
          press the <span style="color:red"><b>down arrow</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
+        <p class = block-text>Do your best to stay focused. Too many wrong responses will disqualify you from payment.</p>
         </div>`;
 
 instructions_2back_page1 = `<div class = centerbox>
