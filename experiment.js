@@ -239,7 +239,7 @@ var get_0back_new_block_instructions = function () {
     var curr_0back_test_block = block_i;
 
     return `<div class = centerbox>
-        <p class = block-title>Fixed Matching Stage – Round ${curr_0back_test_block} (of ${n_0back_test_blocks})</p>
+        <p class = block-title>Fixed Matching Stage – Round ${curr_0back_test_block}</p>
         <p class = block-text>This is your target animal in this round:</p>
         <p class = center-block-text><img src="stims/${target}" style="max-width:200px"></p>
         <p class = block-text>You can take a short rest, and begin when you feel ready.</p>
@@ -252,7 +252,7 @@ var get_nback_new_block_instructions = function () {
     var curr_nback_test_block = block_i - n_0back_test_blocks - 1;
 
     return `<div class = centerbox>
-        <p class = block-title>2-Back Matching Stage – Round ${curr_nback_test_block} (of ${n_nback_test_blocks})</p>
+        <p class = block-title>2-Back Matching Stage – Round ${curr_nback_test_block}</p>
         <p class = block-text>Ready for the next round?</p>
         <p class = block-text>You can take a short rest, and begin when you feel ready.</p>
         <p class = block-text>Press <strong>enter</strong> to begin.</p>
@@ -348,11 +348,8 @@ if (document.images) {
     window["instr3"] = new Image();
     window["instr4"] = new Image();
     window["instr5"] = new Image();
-    window["instr1"].src = "imgs/1back_diagram.svg";
-    window["instr2"].src = "imgs/1back_diagram_nonmatch.svg";
-    window["instr3"].src = "imgs/2back_diagram.svg";
-    window["instr4"].src = "imgs/3back_diagram.svg";
-    window["instr5"].src = "imgs/arrow_keys.svg";
+    window["instr1"].src = "imgs/2back_match.svg";
+    window["instr2"].src = "imgs/2back_mismatch.svg";
 }
 
 //####################################################
@@ -397,7 +394,12 @@ instructions_0back_page2 = `<div class = centerbox>
         <p class = block-text>Your job is to respond using the keyboard:</p>
         <p class = center-block-text>press the <span style="color:green"><b>space bar</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
          press the <span style="color:red"><b>${mismatch_key}</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
+        </div>`;
+
+instructions_0back_page3 = `<div class = centerbox>
+        <p class = block-title>Fixed Matching Stage – Instructions</p>
         <p class = block-text>Do your best to stay focused. Too many wrong responses will disqualify you from payment.</p>
+        <p class = block-text>We will start with a short practice round. When you're ready, click "End Instructions" below.</p>
         </div>`;
 
 instructions_2back_page1 = `<div class = centerbox>
@@ -405,8 +407,8 @@ instructions_2back_page1 = `<div class = centerbox>
         <p class = block-text>Stage 1 complete! Moving on to stage 2.</p>
         <p class = block-text>In stage 2, each time an animal appears on the screen, your goal is to indicate whether it is the same animal that appeared <b>2 images back</b> or not.</p>
         <table style="width:100%"> <tr>
-        <td style="text-align:center;"><img src="imgs/2back_diagram.svg" style="max-width:300px"></td>
-        <td style="text-align:center;"><img src="imgs/1back_diagram_nonmatch.svg" style="max-width:300px"></td>
+        <td style="text-align:center;"><img src="imgs/2back_match.svg" style="max-width:500px"></td>
+        <td style="text-align:center;"><img src="imgs/2back_mismatch.svg" style="max-width:500px"></td>
         </tr> </table>
         </div>`;
 
@@ -447,7 +449,7 @@ var general_instructions_block = {
 
 var practice_instructions_block_0back = {
     type: 'poldrack-instructions',
-    pages: [instructions_0back_page1, instructions_0back_page2],
+    pages: [instructions_0back_page1, instructions_0back_page2, instructions_0back_page3],
     data: {
         trial_id: 'instruction'
     },
