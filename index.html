@@ -36,6 +36,10 @@
                 addID('adaptive-n-back')
             },
             on_finish: function (data) {
+                const prolificID = jsPsych.data.getURLVariable('PROLIFIC_PID');
+                jsPsych.data.addProperties({
+                    subject_id: prolificID
+                });
 
                 // Serialize the data
                 var promise = new Promise(function (resolve, reject) {
@@ -70,7 +74,7 @@
                     // });
                 })
 
-                window.location.replace(`https://hujipsych.au1.qualtrics.com/jfe/form/SV_bNn8bm1u2H0OxWm`);
+                window.location.replace(`https://hujipsych.au1.qualtrics.com/jfe/form/SV_bNn8bm1u2H0OxWm?PROLIFIC_PID=${prolificID}`);
             }
 
         });
