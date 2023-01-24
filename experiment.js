@@ -8,11 +8,13 @@ TIMEOUT_MSG = `<div class = centerbox><div class = center-text>Please respond fa
 TOO_SLOW_ALERT = `Too slow. Please respond to each image <b>before</b> the next one appears on the screen.`
 
 // task specific variables
-var n_0back_test_blocks = 1 // did not exist originally
-var n_nback_test_blocks = 2 * n_0back_test_blocks // was 7
-var block_len = 5 // number of trials in ech block, was 20
+var n_0back_test_blocks = 3
+var n_nback_test_blocks = 5
+var block_len = 28 // number of trials in ech block
 var match_key = 32 // space
 var mismatch_key = `L`
+var MAX_DEADLINE = 3000
+var MIN_DEADLINE = 1500
 
 // stimuli
 var objects = [
@@ -136,28 +138,28 @@ var set_new_block = function () {
     }
 
     // SLOW DOWN
-    // If we have more than 7 timeouts (40%)
-    //	and deadline is not already 3500ms (max)
+    // If we have more than 40% timeouts
+    //	and deadline is not already max
     //	then slow it down by 500ms
-    if (count_timeouts > 7 && deadline < 3500) deadline += 500
+    if (count_timeouts > 0.4 * block_len && deadline < MAX_DEADLINE) deadline += 500
 
         // SPEED UP
-        // If we have fewer than 3 timeouts (10%)
-        //	and deadline is not already 2000ms
+        // If we have less than 10% timeouts
+        //	and deadline is not already min
     //	then speed it up by 500ms
-    else if (count_timeouts < 3 && deadline > 2000) deadline -= 500
+    else if (count_timeouts < 0.1 * block_len && deadline > MIN_DEADLINE) deadline -= 500
 
 
     // ALERT
-    // If we have more than 12 timeouts (60%)
+    // If we have more than 60% timeouts
     //	then show an alert
-    if (count_timeouts >= 12) $.alertable.alert(TOO_SLOW_ALERT);
+    if (count_timeouts > 0.6 * block_len) $.alertable.alert(TOO_SLOW_ALERT);
 
 
     // init new block
     trial_i = 0;
     delay = block_i <= n_0back_test_blocks ? 0 : 2 // during 0-back, block_i is exactly the number of 0-back
-    // blocks completed, including practice at block_i==0
+    // blocks completed, including practice (on 0 back practice block_i is 0)
     array = genSet(objects, delay)
     block_i++;
 }
@@ -279,7 +281,7 @@ var cnbm = function (stim_arr, n) {
 // Generate a block
 function genSet(stimuli, n) {
     n_wanted_targets = 7
-    array = [...stimuli]; // (shallow) copy the stimuli array do it's not changed by this function
+    array = [...stimuli]; // (shallow) copy the stimuli array so it's not changed by this function
 
     // Fill initial array using stimuli one by one. Array length is block_len+n since first n trials cannot be targets
     while (array.length < block_len + n) {
