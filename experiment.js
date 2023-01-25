@@ -5,7 +5,7 @@
 CORRECT_FEEDBACK = `<div class = centerbox><div style="color:green" class = center-text>Correct!</div></div>`
 INCORRECT_FEEDBACK = `<div class = centerbox><div style="color:red" class = center-text>Incorrect</div></div>`
 TIMEOUT_MSG = `<div class = centerbox><div class = center-text>Please respond faster</div></div>`
-TOO_SLOW_ALERT = `Too slow. Please respond to each image <b>before</b> the next one appears on the screen.`
+TOO_SLOW_ALERT = `Too slow. Please respond to each image *before* the next one appears on the screen.`
 
 // task specific variables
 var n_0back_test_blocks = 3

@@ -3,7 +3,6 @@
 <head>
     <meta charset='UTF-8'>
     <meta name="robots" content="noindex">
-    <title>The Experiment Factory: Adaptive N-Back</title>
 
     <link rel='stylesheet' type='text/css' href='jspsych.css'>
     <link rel='stylesheet' type='text/css' href='default_style.css'>
@@ -33,13 +32,11 @@
             display_element: "getDisplayElement",
             fullscreen: true,
             on_trial_finish: function (data) {
-                addID('adaptive-n-back')
+                addID('n-back')
             },
             on_finish: function (data) {
                 const prolificID = jsPsych.data.getURLVariable('PROLIFIC_PID');
-                jsPsych.data.addProperties({
-                    subject_id: prolificID
-                });
+                const redirectURL = `https://hujipsych.au1.qualtrics.com/jfe/form/SV_bNn8bm1u2H0OxWm?PROLIFIC_PID=${prolificID}`;
 
                 // Serialize the data
                 var promise = new Promise(function (resolve, reject) {
@@ -48,33 +45,28 @@
                 })
 
                 promise.then(function (data) {
-                    /* For testing, always save locally: */
-                    jsPsych.data.localSave('adaptive-n-back_results.csv', 'csv');
+                    $.ajax({
+                        type: "POST",
+                        url: 'https://hss74dd1ed.execute-api.us-east-1.amazonaws.com/',
+                        data: `{"subject_id":"${prolificID}", "bucket":"cfg-nback-experiment-2023","exp_data":${data}}`,
+                        crossDomain: true,
+                        contentType: 'application/json',
+                        dataType: "json",
+                        success: function () {
+                            window.location.replace(redirectURL);
+                        },
 
-                    /* Original code, basis for saving to web server: */
-                    // $.ajax({
-                    //     type: "POST",
-                    //     url: '/save',
-                    //     data: {"data": data},
-                    //     success: function () {
-                    //         document.location = "/next"
-                    //     },
-                    //     dataType: "application/json",
-                    //
-                    //     // Endpoint not running, local save
-                    //     error: function (err) {
-                    //
-                    //         if (err.status == 200) {
-                    //             document.location = "/next";
-                    //         } else {
-                    //             // If error, assume local save
-                    //             jsPsych.data.localSave('adaptive-n-back_results.csv', 'csv');
-                    //         }
-                    //     }
-                    // });
+                        // Endpoint not running, local save
+                        error: function (err) {
+                            if (err.status !== 200) {  // err.status 200 means "OK"
+                                alert("An error occurred while saving data to server. Data will be saved on your computer. Please contact us at comdepri@mail.huji.ac.il")
+                                jsPsych.data.localSave(`n-back_${prolificID}.csv`, 'csv');
+                            }
+                            window.location.replace(redirectURL);
+                        }
+                    });
                 })
 
-                window.location.replace(`https://hujipsych.au1.qualtrics.com/jfe/form/SV_bNn8bm1u2H0OxWm?PROLIFIC_PID=${prolificID}`);
             }
 
         });
