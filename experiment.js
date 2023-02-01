@@ -396,9 +396,10 @@ instructions_0back_page2 = `<div class = centerbox>
         <p class = block-text>Your job is to respond using the keyboard:</p>
         <p class = center-block-text>press the <span style="color:green"><b>space bar</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
          press the <span style="color:red"><b>${mismatch_key}</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
+        <p class = block-text>We will start with a short practice round.<br>When you're ready, click "End Instructions" below.</p>
         </div>`;
 
-/* add this page if disqualifying payment based on performance: */
+/* if preventing payment based on performance, add this page and remove the last line from the previous one */
 // instructions_0back_page3 = `<div class = centerbox>
 //         <p class = block-title>Fixed Matching Stage – Instructions</p>
 //         <p class = block-text>Do your best to stay focused. Too many wrong responses will disqualify you from payment.</p>
