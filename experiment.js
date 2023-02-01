@@ -398,11 +398,12 @@ instructions_0back_page2 = `<div class = centerbox>
          press the <span style="color:red"><b>${mismatch_key}</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
         </div>`;
 
-instructions_0back_page3 = `<div class = centerbox>
-        <p class = block-title>Fixed Matching Stage – Instructions</p>
-        <p class = block-text>Do your best to stay focused. Too many wrong responses will disqualify you from payment.</p>
-        <p class = block-text>We will start with a short practice round. When you're ready, click "End Instructions" below.</p>
-        </div>`;
+/* add this page if disqualifying payment based on performance: */
+// instructions_0back_page3 = `<div class = centerbox>
+//         <p class = block-title>Fixed Matching Stage – Instructions</p>
+//         <p class = block-text>Do your best to stay focused. Too many wrong responses will disqualify you from payment.</p>
+//         <p class = block-text>We will start with a short practice round. When you're ready, click "End Instructions" below.</p>
+//         </div>`;
 
 instructions_2back_page1 = `<div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Instructions</p>
@@ -451,7 +452,7 @@ var general_instructions_block = {
 
 var practice_instructions_block_0back = {
     type: 'poldrack-instructions',
-    pages: [instructions_0back_page1, instructions_0back_page2, instructions_0back_page3],
+    pages: [instructions_0back_page1, instructions_0back_page2], // add page 3 if disqualifying based no performance
     data: {
         trial_id: 'instruction'
     },
