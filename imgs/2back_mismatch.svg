@@ -26,14 +26,14 @@
    inkscape:deskcolor="#d1d1d1"
    showgrid="false"
    inkscape:zoom="2.62"
-   inkscape:cx="168.32061"
-   inkscape:cy="177.67176"
+   inkscape:cx="158.96947"
+   inkscape:cy="178.05344"
    inkscape:window-width="2560"
    inkscape:window-height="1361"
    inkscape:window-x="-9"
    inkscape:window-y="-9"
    inkscape:window-maximized="1"
-   inkscape:current-layer="lobster"><inkscape:page
+   inkscape:current-layer="Layer_1"><inkscape:page
      x="0"
      y="0"
      width="500"
@@ -307,21 +307,24 @@
    y1="289.4"
    x2="111.4"
    y2="315.5"
-   id="line293" />
+   id="line293"
+   style="stroke-width:1.73;stroke-dasharray:none" />
 	<line
    class="st13"
    x1="111.4"
    y1="316"
    x2="389.3"
    y2="316"
-   id="line295" />
+   id="line295"
+   style="stroke-width:1.73;stroke-dasharray:none" />
 	<line
    class="st13"
    x1="389.3"
    y1="289.8"
    x2="389.3"
    y2="316"
-   id="line297" />
+   id="line297"
+   style="stroke-width:1.73;stroke-dasharray:none" />
 </g>
 <g
    class="st14"
@@ -388,12 +391,12 @@
    class="st10 st11 st16"
    id="mismatch"
    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:21.7822px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000"
-   x="200.56462"
+   x="203.42566"
    y="348.92679"><tspan
      sodipodi:role="line"
      id="tspan711"
-     x="200.56462"
-     y="348.92679">mismatch!</tspan></text>
+     x="203.42566"
+     y="348.92679">mismatch</tspan></text>
 
 <g
    id="arrow_left"

@@ -9,7 +9,7 @@
    viewBox="0 0 500 354"
    style="enable-background:new 0 0 500 354;"
    xml:space="preserve"
-   sodipodi:docname="2back_diagram_white.svg"
+   sodipodi:docname="2back_match.svg"
    inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -26,8 +26,8 @@
    inkscape:deskcolor="#d1d1d1"
    showgrid="false"
    inkscape:zoom="2.62"
-   inkscape:cx="185.87786"
-   inkscape:cy="177.29008"
+   inkscape:cx="163.16794"
+   inkscape:cy="177.67176"
    inkscape:window-width="2560"
    inkscape:window-height="1361"
    inkscape:window-x="-9"
@@ -307,21 +307,24 @@
    y1="289.4"
    x2="111.4"
    y2="315.5"
-   id="line293" />
+   id="line293"
+   style="fill:#008000;stroke:#00af00;stroke-opacity:1;stroke-width:1.73;stroke-dasharray:none" />
 	<line
    class="st13"
    x1="111.4"
    y1="316"
    x2="389.3"
    y2="316"
-   id="line295" />
+   id="line295"
+   style="fill:#008000;stroke:#00af00;stroke-opacity:1;stroke-width:1.73;stroke-dasharray:none" />
 	<line
    class="st13"
    x1="389.3"
    y1="289.8"
    x2="389.3"
    y2="316"
-   id="line297" />
+   id="line297"
+   style="fill:#008000;stroke:#00af00;stroke-opacity:1;stroke-width:1.73;stroke-dasharray:none" />
 </g>
 <g
    class="st14"
