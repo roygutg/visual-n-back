@@ -153,7 +153,8 @@ var set_new_block = function () {
     // ALERT
     // If we have more than 60% timeouts
     //	then show an alert
-    if (count_timeouts > 0.6 * block_len) $.alertable.alert(TOO_SLOW_ALERT);
+    // TODO: this alert pops-up then immediately disappears. debug before deploying with next line uncommented
+    // if (count_timeouts > 0.6 * block_len) $.alertable.alert(TOO_SLOW_ALERT);
 
 
     // init new block
