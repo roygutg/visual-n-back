@@ -474,10 +474,6 @@ var practice_instructions_block_2back = {
     timing_post_trial: 1000
 };
 
-// Credit for keyboard vector used in instructions
-// Author: Kevin Burke
-// https://www.vectorportal.com/StockVectors/Icons/ARROW-KEYS-FREE-VECTOR/9459.aspx
-
 var end_block = {
     type: 'poldrack-text',
     text: `<div class = centerbox><p class = center-block-text>Task completed!</p>
