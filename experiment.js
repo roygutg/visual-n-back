@@ -410,7 +410,7 @@ instructions_0back_page2 = `<div class = centerbox>
 instructions_2back_page1 = `<div class = centerbox>
         <p class = block-title>2-Back Matching Stage – Instructions</p>
         <p class = block-text>Stage 1 complete! Moving on to stage 2.</p>
-        <p class = block-text>In stage 2, each time an animal appears on the screen, your goal is to indicate whether it is the same animal that appeared <b>2 images back</b> or not.</p>
+        <p class = block-text>In stage 2, each time an animal appears, your goal is to indicate whether it is the same that appeared <b>2 images back</b> or not.</p>
         <table style="width:100%"> <tr>
         <td style="text-align:center;"><img src="imgs/2back_match.svg" style="max-width:500px"></td>
         <td style="text-align:center;"><img src="imgs/2back_mismatch.svg" style="max-width:500px"></td>
