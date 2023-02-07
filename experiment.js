@@ -655,7 +655,7 @@ var test_trial = {
     choices: [match_key, mismatch_key],
     timing_stim: 500,
     timing_response: getDeadline,
-    timing_post_trial: 0,
+    timing_post_trial: 500,
     on_finish: function (data) {
         post_test_trial(data)
     }
