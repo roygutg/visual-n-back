@@ -11,8 +11,10 @@ TOO_SLOW_ALERT = `Too slow. Please respond to each image *before* the next one a
 var n_0back_test_blocks = 3
 var n_nback_test_blocks = 5
 var block_len = 28 // number of trials in ech block
-var match_key = 32 // space
-var mismatch_key = `L`
+var match_char = ` `
+var match_key_unicode = match_char.charCodeAt(0);
+var mismatch_char = `L`
+var mismatch_key_unicode = mismatch_char.charCodeAt(0);
 var MAX_DEADLINE = 3000
 var MIN_DEADLINE = 1500
 
@@ -109,7 +111,7 @@ var post_test_trial = function (data) {
     var key = data.key_press
 
     correct = (trial_i < delay) ||  // before n stimuli were shown, correct regardless of key pressed
-        (curr_stim === target && key === match_key) || (curr_stim !== target && key === mismatch_key);
+        (curr_stim === target && key === match_key_unicode) || (curr_stim !== target && key === mismatch_key_unicode);
 
     jsPsych.data.addDataToLastTrial({
         correct: correct,
@@ -205,7 +207,7 @@ var getData = function () {
 }
 
 var getCorrectResponse = function () {
-    return curr_stim === target ? match_key : mismatch_key;
+    return curr_stim === target ? match_key_unicode : mismatch_key_unicode;
 }
 
 var get_0back_practice_instructions = function () {
@@ -396,7 +398,7 @@ instructions_0back_page2 = `<div class = centerbox>
         <p class = block-text> Remember, each time an image appears on the screen, your goal is to indicate if it is the target animal or not.</p>
         <p class = block-text>Your job is to respond using the keyboard:</p>
         <p class = center-block-text>press the <span style="color:green"><b>space bar</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
-         press the <span style="color:red"><b>${mismatch_key}</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
+         press the <span style="color:red"><b>${mismatch_char}</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
         <p class = block-text>We will start with a short practice round.<br>When you're ready, click "End Instructions" below.</p>
         </div>`;
 
@@ -437,7 +439,7 @@ instructions_2back_page4 = `<script>clearInterval(slideInterval);</script><div c
         <p class = block-title>2-Back Matching Stage – Instructions</p>
         <p class = block-text>Your job is to respond using the keyboard:</p>
         <p class = center-block-text>press the <span style="color:green"><b>space bar</b></span> if it's a <span style="color:green"><b>match</b></span> <br>
-        press the <span style="color:red"><b>${mismatch_key}</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
+        press the <span style="color:red"><b>${mismatch_char}</b></span> key if it's a <span style="color:red"><b>mismatch</b></span></p>
         <p class = block-text>No response is needed for the first two animals in each round.</p>
         </div>`
 
@@ -544,7 +546,6 @@ var update_nback_target_block = {
 var start_0back_new_block = {
     type: 'poldrack-text',
     data: {
-        exp_stage: "0back-test",
         trial_id: "delay_text"
     },
     text: get_0back_new_block_instructions,
@@ -556,7 +557,6 @@ var start_0back_new_block = {
 var start_nback_new_block = {
     type: 'poldrack-text',
     data: {
-        exp_stage: `nback-test`,
         trial_id: "delay_text"
     },
     text: get_nback_new_block_instructions,
@@ -580,7 +580,8 @@ for (var i = 0; i < block_len; i++) {
         key_answer: getCorrectResponse,
         data: {
             trial_id: "stim",
-            exp_stage: "0back-practice",
+            exp_stage: "practice",
+            load: "0",
             stim: curr_stim,
             target: getTarget
         },
@@ -590,7 +591,7 @@ for (var i = 0; i < block_len; i++) {
         timing_feedback_duration: 500,
         show_stim_with_feedback: false,
         response_ends_trial: false,
-        choices: [match_key, mismatch_key],
+        choices: [match_key_unicode, mismatch_key_unicode],
         timing_stim: 500,
         timing_response: deadline,
         timing_post_trial: 500
@@ -624,7 +625,8 @@ for (var i = 0; i < block_len + 2; i++) {
         key_answer: getCorrectResponse,
         data: {
             trial_id: "stim",
-            exp_stage: "2back-practice",
+            exp_stage: "practice",
+            load: "2",
             stim: curr_stim,
             target: getTarget
         },
@@ -634,7 +636,7 @@ for (var i = 0; i < block_len + 2; i++) {
         timing_feedback_duration: fb_duration,
         show_stim_with_feedback: false,
         response_ends_trial: false,
-        choices: [match_key, mismatch_key],
+        choices: [match_key_unicode, mismatch_key_unicode],
         timing_stim: 500,
         timing_response: deadline,
         timing_post_trial: 500
@@ -652,7 +654,7 @@ var test_trial = {
     stimulus: getStim,
     data: getData,
     correct_response: getCorrectResponse,
-    choices: [match_key, mismatch_key],
+    choices: [match_key_unicode, mismatch_key_unicode],
     timing_stim: 500,
     timing_response: getDeadline,
     timing_post_trial: 500,
